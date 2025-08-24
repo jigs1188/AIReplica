@@ -1,50 +1,96 @@
-# Welcome to your Expo app 👋
+# AIReplica – Your Personal Digital Clone
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Concept
+AIReplica is a mobile application designed to create your own AI-powered digital clone. This clone mimics your response style to messages, emails, meeting notes, and assists with small decisions, aiming to reduce repetitive tasks and communication overload.
 
-## Get started
+## Who It's For
+- Busy freelancers or startup founders
+- Content creators
+- Anyone overloaded with repetitive decisions or communications
 
-1. Install dependencies
+## Key Features
 
-   ```bash
-   npm install
-   ```
+### Auto-Reply to Texts, Emails, Comments
+- Learns from your unique communication style (via uploaded samples or prompts).
+- Allows for draft approval before sending.
 
-2. Start the app
+### Decision Bot for Day-to-Day Tasks
+- Provides AI-powered suggestions for common dilemmas (e.g., "Should I take this meeting?", "What caption should I write?").
 
-   ```bash
-   npx expo start
-   ```
+### Meeting Memory + Note Generator
+- Upload voice or text from calls to generate summaries, key decisions, and to-do lists, all in your personalized tone.
 
-In the output, you'll find options to open the app in a
+### Custom Prompt Templates
+- Create and use personalized commands (e.g., "Write a YouTube reply to a rude comment in my style.").
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## How It Works
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+**Onboarding:** Users train their clone by providing 5-10 sample replies, emails, and tone preferences.
 
-## Get a fresh project
+**Technology:** Leverages GPT-4 (via OpenAI API) for personalization and Firebase for backend user data management. AsyncStorage is used for local session data caching, ensuring quick response times.
 
-When you're ready, run:
+**User Interface:** Built with React Native, featuring a sleek, modern UI with auto-suggestions and history logs.
 
-```bash
-npm run reset-project
-```
+## Tech Stack
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+-   **Frontend:** React Native (with Expo) + Tailwind CSS
+-   **Backend:** Firebase (for user data, authentication)
+-   **AI/ML:** OpenAI GPT API (for text generation) and Whisper API (for audio transcription)
+-   **Local Storage:** AsyncStorage (for quick response caching)
 
-## Learn more
+## Installation
 
-To learn more about developing your project with Expo, look at the following resources:
+To get started with the AIReplica project, follow these steps:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1.  **Clone the repository:**
+    ```bash
+    git clone <your-repo-url>
+    cd aireplica
+    ```
 
-## Join the community
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    # or yarn install
+    ```
 
-Join our community of developers creating universal apps.
+3.  **Install Expo-specific dependencies:**
+    ```bash
+    npx expo install expo-linear-gradient react-native-safe-area-context @expo/vector-icons
+    ```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+4.  **Configure Firebase and OpenAI:**
+    -   Create a Firebase project and update `firebase.js` with your `firebaseConfig`.
+    -   Set up your OpenAI API key in `openai.js` (or via environment variables).
+
+## How to Run the App
+
+After installation and configuration, you can run the app using the following commands:
+
+-   **Start the development server:**
+    ```bash
+    npm start
+    ```
+
+-   **Run on web:**
+    ```bash
+    npm run web
+    ```
+
+-   **Run on Android emulator/device:**
+    ```bash
+    npm run android
+    ```
+
+-   **Run on iOS simulator/device:**
+    ```bash
+    npm run ios
+    ```
+
+## Project Structure (Key Directories)
+
+-   `app/`: Contains the main application screens and navigation.
+-   `components/`: Reusable UI components.
+-   `assets/`: Static assets like fonts and images.
+-   `firebase.js`: Firebase configuration and initialization.
+-   `openai.js`: OpenAI API client setup.
