@@ -1,52 +1,57 @@
-# AIReplica – Your Personal Digital Clone
+# 🤖 AIReplica - AI Personal Assistant
 
-## Concept
-AIReplica is a mobile application designed to create your own AI-powered digital clone. This clone mimics your response style to messages, emails, meeting notes, and assists with small decisions, aiming to reduce repetitive tasks and communication overload.
+**One-tap platform connections. AI handles everything.**
 
-## Who It's For
-- Busy freelancers or startup founders
-- Content creators
-- Anyone overloaded with repetitive decisions or communications
+## 🚀 Quick Test (2 Steps)
 
-## Key Features
+### 1. Start the App
+```bash
+npm install
+npm run dev
+```
 
-### Auto-Reply to Texts, Emails, Comments
-- Learns from your unique communication style (via uploaded samples or prompts).
-- Allows for draft approval before sending.
+### 2. Start Backend (New Terminal)  
+```bash
+npm run webhook
+```
 
-### Decision Bot for Day-to-Day Tasks
-- Provides AI-powered suggestions for common dilemmas (e.g., "Should I take this meeting?", "What caption should I write?").
+**Done!** Scan QR code with Expo Go to test.
 
-### Meeting Memory + Note Generator
-- Upload voice or text from calls to generate summaries, key decisions, and to-do lists, all in your personalized tone.
+## 📱 Test Features
 
-### Custom Prompt Templates
-- Create and use personalized commands (e.g., "Write a YouTube reply to a rude comment in my style.").
+- ✅ **Connect platforms** (WhatsApp, Instagram, LinkedIn, etc.)
+- ✅ **AI auto-replies** (Powered by GPT-4)
+- ✅ **Simple dashboard** (One-tap controls)
+- ✅ **Subscription plans** (Free → Pro → Business)
 
-## How It Works
+## 🧪 Run System Test
 
-**Onboarding:** Users train their clone by providing 5-10 sample replies, emails, and tone preferences.
+```bash
+node test-system.js
+```
 
-**Technology:** Leverages GPT-4 (via OpenAI API) for personalization and Firebase for backend user data management. AsyncStorage is used for local session data caching, ensuring quick response times.
+## 🎯 What You Built
 
-**User Interface:** Built with React Native, featuring a sleek, modern UI with auto-suggestions and history logs.
+**Frontend**: React Native app with simplified OAuth
+**Backend**: Node.js server with webhook processing  
+**AI**: OpenAI GPT-4 for smart responses
+**Auth**: Firebase user management
+**Billing**: SaaS subscription system
 
-## Tech Stack
+## 🚀 Deploy to Production
 
--   **Frontend:** React Native (with Expo) + Tailwind CSS
--   **Backend:** Firebase (for user data, authentication)
--   **AI/ML:** OpenAI GPT API (for text generation) and Whisper API (for audio transcription)
--   **Local Storage:** AsyncStorage (for quick response caching)
+```bash
+# Deploy backend to Railway
+npm install -g @railway/cli
+railway login
+railway init  
+railway up
 
-## Installation
+# Build mobile app
+npx expo build
+```
 
-To get started with the AIReplica project, follow these steps:
-
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repo-url>
-    cd aireplica
-    ```
+**Your AI assistant startup is ready!** 🎉
 
 2.  **Install dependencies:**
     ```bash

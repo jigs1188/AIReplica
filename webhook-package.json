@@ -1,0 +1,30 @@
+{
+  "name": "aireplica-webhook-server",
+  "version": "1.0.0",
+  "description": "Webhook server for AiReplica Personal Assistant",
+  "main": "webhook-server.js",
+  "scripts": {
+    "start": "node webhook-server.js",
+    "dev": "nodemon webhook-server.js",
+    "test": "node -e \"console.log('Webhook server test - OK')\""
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "webhook",
+    "whatsapp",
+    "instagram", 
+    "facebook",
+    "ai-assistant",
+    "personal-assistant"
+  ],
+  "author": "AiReplica",
+  "license": "MIT"
+}

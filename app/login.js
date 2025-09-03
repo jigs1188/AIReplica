@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { ThemedView } from '../components/ThemedView';
-import { ThemedText } from '../components/ThemedText';
-import { auth } from '../firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { router } from 'expo-router';
-import { useThemeColor } from '../hooks/useThemeColor';
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "expo-router";
+import { ThemedView } from "../components/ThemedView";
+import { ThemedText } from "../components/ThemedText";
+import { auth } from "../firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { useThemeColor } from "../hooks/useThemeColor";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const navigation = useNavigation();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const textColor = useThemeColor({}, 'text');
-  const borderColor = useThemeColor({}, 'icon');
-  const destructiveColor = useThemeColor({}, 'destructive');
-  const tintColor = useThemeColor({}, 'tint');
+  const textColor = useThemeColor({}, "text");
+  const borderColor = useThemeColor({}, "icon");
+  const destructiveColor = useThemeColor({}, "destructive");
+  const tintColor = useThemeColor({}, "tint");
 
   const handleAuth = async () => {
     try {
@@ -25,69 +27,96 @@ export default function LoginScreen() {
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
       }
-      router.replace('/dashboard');
+      navigation.navigate("dashboard");
     } catch (err) {
       setError(err.message);
     }
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.title}>{isLogin ? 'Login' : 'Sign Up'}</ThemedText>
-      
-      <TextInput
-        style={[styles.input, { borderColor: borderColor, color: textColor }]}
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        autoCapitalize="none"
-        placeholderTextColor={borderColor}
-      />
-      <TextInput
-        style={[styles.input, { borderColor: borderColor, color: textColor }]}
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Password"
-        secureTextEntry
-        placeholderTextColor={borderColor}
-      />
+    <View style={{ flex: 1 }}>
+      <LinearGradient colors={["#6A0572", "#AB47BC", "#E1BEE7"]} style={{ flex: 1 }}>
+        <ThemedView style={styles.container}>
+          <ThemedText type="title" style={styles.title}>
+            {isLogin ? "Login" : "Sign Up"}
+          </ThemedText>
 
-      {error ? <Text style={[styles.error, { color: destructiveColor }]}>{error}</Text> : null}
+          <TextInput
+            style={[styles.input, { borderColor: borderColor, color: textColor }]}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Email"
+            autoCapitalize="none"
+            placeholderTextColor={borderColor}
+            keyboardType="email-address"
+          />
+          <TextInput
+            style={[styles.input, { borderColor: borderColor, color: textColor }]}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Password"
+            secureTextEntry
+            placeholderTextColor={borderColor}
+          />
 
-      <Button title={isLogin ? 'Login' : 'Sign Up'} onPress={handleAuth} />
+          {error ? <Text style={[styles.error, { color: destructiveColor }]}>{error}</Text> : null}
 
-      <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
-        <Text style={[styles.switchText, { color: tintColor }]}>
-          {isLogin ? 'Need an account? Sign Up' : 'Have an account? Login'}
-        </Text>
-      </TouchableOpacity>
-    </ThemedView>
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#6A0572",
+              paddingHorizontal: 38,
+              paddingVertical: 16,
+              borderRadius: 28,
+              marginBottom: 18,
+              shadowColor: "#6A0572",
+              shadowOpacity: 0.15,
+              shadowRadius: 8,
+              elevation: 2,
+            }}
+            onPress={handleAuth}
+          >
+            <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>{isLogin ? "Login" : "Sign Up"}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("OnboardingScreen")}>
+            <Text style={{ color: "#fff", fontSize: 16, textDecorationLine: "underline" }}>
+              {isLogin ? "Need an account? Sign Up" : "Have an account? Login"}
+            </Text>
+          </TouchableOpacity>
+        </ThemedView>
+      </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
   },
   title: {
-    marginBottom: 32,
-    textAlign: 'center',
+    color: "#fff",
+    fontSize: 36,
+    fontWeight: "bold",
+    marginBottom: 18,
   },
   input: {
-    height: 40,
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 16,
+    width: "100%",
+    maxWidth: 340,
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 16,
+    fontSize: 16,
+    marginBottom: 18,
+    color: "#6A0572",
   },
   error: {
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 16,
   },
   switchText: {
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 16,
   },
 });
