@@ -193,6 +193,31 @@ export default function AIReplicaDashboard() {
       slack: '#4A154B'
     };
 
+    const handleSetupPlatform = (platformKey) => {
+      switch (platformKey) {
+        case 'whatsapp':
+          router.push('/working-whatsapp-setup');
+          break;
+        case 'email':
+          router.push('/email-setup');
+          break;
+        case 'instagram':
+          router.push('/instagram-setup');
+          break;
+        case 'linkedin':
+          Alert.alert('Coming Soon', 'LinkedIn setup will be available soon!');
+          break;
+        case 'telegram':
+          Alert.alert('Coming Soon', 'Telegram setup will be available soon!');
+          break;
+        case 'slack':
+          Alert.alert('Coming Soon', 'Slack setup will be available soon!');
+          break;
+        default:
+          Alert.alert('Coming Soon', `${platform} setup will be available soon!`);
+      }
+    };
+
     return (
       <View style={styles.platformCard}>
         <View style={styles.platformHeader}>
@@ -214,6 +239,21 @@ export default function AIReplicaDashboard() {
         <Text style={styles.platformStatus}>
           {config.enabled ? '✅ Active' : '⏸️ Paused'} • {config.count || 0} replies
         </Text>
+        
+        {/* Platform Setup Button */}
+        <TouchableOpacity
+          style={[styles.setupButton, { borderColor: colors[platformKey] }]}
+          onPress={() => handleSetupPlatform(platformKey)}
+        >
+          <MaterialCommunityIcons 
+            name="cog-outline" 
+            size={16} 
+            color={colors[platformKey]} 
+          />
+          <Text style={[styles.setupButtonText, { color: colors[platformKey] }]}>
+            Setup {platform}
+          </Text>
+        </TouchableOpacity>
         
         {config.enabled && (
           <View style={styles.platformControls}>
@@ -240,8 +280,8 @@ export default function AIReplicaDashboard() {
       </View>
       
       <View style={styles.messageContainer}>
-        <Text style={styles.originalMessage}>📨 "{reply.originalMessage}"</Text>
-        <Text style={styles.generatedResponse}>🤖 "{reply.generatedResponse}"</Text>
+        <Text style={styles.originalMessage}>📨 {"\u201C"}{reply.originalMessage}{"\u201D"}</Text>
+        <Text style={styles.generatedResponse}>🤖 {"\u201C"}{reply.generatedResponse}{"\u201D"}</Text>
       </View>
       
       <View style={styles.approvalActions}>
@@ -615,6 +655,22 @@ const styles = StyleSheet.create({
   controlLabel: {
     fontSize: 12,
     color: '#6B7280',
+  },
+  setupButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  setupButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 6,
   },
   quickActionButton: {
     flexDirection: 'row',

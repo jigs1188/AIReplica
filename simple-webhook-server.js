@@ -105,8 +105,8 @@ app.post('/webhook/instagram', async (req, res) => {
  * Generic platform webhook
  */
 app.post('/webhook/:platform', async (req, res) => {
+  let platform = req.params.platform;
   try {
-    const platform = req.params.platform;
     console.log(`📨 ${platform} webhook received:`, req.body);
     
     const { message, from } = req.body;

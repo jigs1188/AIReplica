@@ -658,8 +658,8 @@ app.get('/oauth/:platform/callback', async (req, res) => {
     }
 
   } catch (error) {
-    console.error(`❌ OAuth callback failed for ${platform}:`, error);
-    res.redirect(`aireplica://oauth/error?platform=${platform}&error=callback_failed`);
+    console.error(`❌ OAuth callback failed for ${req.params.platform}:`, error);
+    res.redirect(`aireplica://oauth/error?platform=${req.params.platform}&error=callback_failed`);
   }
 });
 

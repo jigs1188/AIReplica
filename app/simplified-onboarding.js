@@ -369,7 +369,10 @@ export default function SimplifiedOnboarding() {
 
       <TouchableOpacity 
         style={styles.primaryButton} 
-        onPress={() => router.replace('/simplified-integration-dashboard')}
+        onPress={async () => {
+          await AsyncStorage.setItem('@AIReplica_hasLaunched', 'true');
+          router.replace('/dashboard');
+        }}
       >
         <Text style={styles.primaryButtonText}>Go to Dashboard</Text>
       </TouchableOpacity>

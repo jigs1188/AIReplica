@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, TextInput, Switch } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, TextInput, Switch, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -358,10 +358,9 @@ export default function ContactAuthorizationScreen() {
                 mode="date"
                 display="default"
                 onChange={(event, selectedDate) => {
-                  setShowDatePicker(false);
-                  if (selectedDate) {
-                    setNewContact(prev => ({ ...prev, expiresAt: selectedDate }));
-                  }
+                  const currentDate = selectedDate || newContact.expiresAt;
+                  setShowDatePicker(Platform.OS === 'android');
+                  setNewContact(prev => ({ ...prev, expiresAt: currentDate }));
                 }}
                 minimumDate={new Date()}
               />
