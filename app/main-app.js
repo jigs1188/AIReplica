@@ -9,8 +9,8 @@ import { useRouter } from 'expo-router';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
 
-// Simple screens
-import SimpleDashboard from './simple-dashboard';
+// Professional screens
+import ProfessionalDashboard from './professional-main-dashboard';
 import ConsumerAuth from './consumer-auth';
 
 export default function MainApp() {
@@ -43,5 +43,5 @@ export default function MainApp() {
   }
 
   // Show dashboard if user is authenticated, otherwise show auth
-  return user ? <SimpleDashboard /> : <ConsumerAuth />;
+  return user ? <ProfessionalDashboard /> : <ConsumerAuth />;
 }

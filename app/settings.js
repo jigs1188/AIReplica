@@ -177,8 +177,15 @@ export default function SettingsScreen() {
     <LinearGradient colors={["#6A0572", "#AB47BC", "#E1BEE7"]} style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
         <MaterialCommunityIcons name="cog" size={28} color="#FFFFFF" />
         <Text style={styles.headerText}>Settings</Text>
+        <View style={{ width: 40 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -322,7 +329,7 @@ export default function SettingsScreen() {
             icon="view-dashboard"
             title="Integration Dashboard"
             subtitle="Comprehensive settings & status overview"
-            onPress={() => router.push('/integration-dashboard')}
+            onPress={() => router.push('/ai-replica-dashboard')}
           />
           <SettingItem
             icon="cloud-sync"
@@ -386,12 +393,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
     backgroundColor: "rgba(0, 0, 0, 0.2)",
+    justifyContent: "space-between",
+  },
+  backButton: {
+    padding: 8,
   },
   headerText: {
     color: "#FFFFFF",
     fontSize: 20,
     fontWeight: "bold",
     marginLeft: 8,
+    flex: 1,
   },
   content: {
     padding: 16,

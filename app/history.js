@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { View, FlatList, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { auth, db } from "../firebase";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 
 const HistoryScreen = () => {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
   const user = auth.currentUser;
 
   useEffect(() => {
@@ -64,8 +66,15 @@ const HistoryScreen = () => {
     <LinearGradient colors={["#6A0572", "#AB47BC", "#E1BEE7"]} style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
         <MaterialCommunityIcons name="history" size={28} color="#FFFFFF" />
         <Text style={styles.headerText}>Conversation History</Text>
+        <View style={{ width: 40 }} />
       </View>
 
       {conversations.length === 0 ? (
@@ -95,12 +104,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
     backgroundColor: "rgba(0, 0, 0, 0.2)",
+    justifyContent: "space-between",
+  },
+  backButton: {
+    padding: 8,
   },
   headerText: {
     color: "#FFFFFF",
     fontSize: 20,
     fontWeight: "bold",
     marginLeft: 8,
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,

@@ -179,7 +179,7 @@ export default function WorkingWhatsAppSetup() {
         'Your WhatsApp Business account is now connected to AIReplica. You can start receiving and auto-replying to messages!',
         [
           { text: 'Test Auto-Reply', onPress: () => setCurrentStep(6) },
-          { text: 'Go to Dashboard', onPress: () => router.push('/dashboard') }
+          { text: 'Go to Dashboard', onPress: () => router.push('/professional-main-dashboard') }
         ]
       );
 
@@ -223,7 +223,7 @@ export default function WorkingWhatsAppSetup() {
         Alert.alert(
           '✅ Test Message Sent!',
           `Test message sent successfully to ${setupData.testPhoneNumber}`,
-          [{ text: 'Great!', onPress: () => router.push('/ai-replica-dashboard') }]
+          [{ text: 'Great!', onPress: () => router.push('/professional-main-dashboard') }]
         );
       } else {
         Alert.alert('Test Failed', data.error?.message || 'Failed to send test message');
@@ -460,7 +460,7 @@ export default function WorkingWhatsAppSetup() {
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push('/ai-replica-dashboard')}>
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push('/professional-main-dashboard')}>
               <Text style={styles.secondaryButtonText}>Skip Test - Go to Dashboard</Text>
             </TouchableOpacity>
           </View>

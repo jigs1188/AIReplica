@@ -71,7 +71,7 @@ const features = [
     title: "📜 Conversation History", 
     subtitle: "Review past conversations and AI decision patterns", 
     icon: "history", 
-    route: "/(tabs)/history",
+    route: "/history",
     badge: null,
     color: "#512DA8" 
   },
@@ -79,7 +79,7 @@ const features = [
     title: "💬 Prompt Templates", 
     subtitle: "Create and manage smart response templates", 
     icon: "text-box-multiple", 
-    route: "/(tabs)/prompts",
+    route: "/prompts",
     badge: null,
     color: "#4527A0" 
   },
@@ -95,7 +95,7 @@ const features = [
     title: "⚙️ Settings & Sync", 
     subtitle: "Configure preferences and sync across devices", 
     icon: "cog-outline", 
-    route: "/(tabs)/settings",
+    route: "/settings",
     badge: null,
     color: "#607D8B" 
   },

@@ -9,15 +9,15 @@ export default function RootLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
+      <Stack.Screen name="professional-main-dashboard" />
       <Stack.Screen name="dashboard" />
       <Stack.Screen name="main-app" />
-      <Stack.Screen name="simple-dashboard" />
       <Stack.Screen name="consumer-auth" />
+      <Stack.Screen name="multi-step-auth" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="chat" />
       <Stack.Screen name="training" />
       <Stack.Screen name="subscription-plans" />
-      <Stack.Screen name="ai-replica-dashboard" />
       <Stack.Screen name="integration-dashboard" />
       <Stack.Screen name="auto-reply" />
       <Stack.Screen name="MeetingMemory" />
