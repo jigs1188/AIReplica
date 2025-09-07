@@ -8,8 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Platform,
-  Image
+  Platform
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
@@ -47,17 +46,62 @@ const MultiStepAuth = () => {
   const router = useRouter();
 
   // Google Auth Setup
-  const [request, response, promptAsync] = Google.useAuthRequest({
+  const [, response, promptAsync] = Google.useAuthRequest({
     clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_WEB,
+    scopes: ['openid', 'profile', 'email'],
+    additionalParameters: {},
+    customParameters: {},
   });
 
-  const isGoogleConfigured = !!process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
+  const isGoogleConfigured = !!(process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID && process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_WEB);
+
+  const handleGoogleSignIn = async (credential) => {
+    setIsLoading(true);
+    try {
+      const userCredential = await signInWithCredential(auth, credential);
+      
+      // Store user info
+      await AsyncStorage.setItem('@AIReplica_user', JSON.stringify({
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        name: userCredential.user.displayName || 'User',
+        photoURL: userCredential.user.photoURL,
+        authMethod: 'google'
+      }));
+
+      await AsyncStorage.setItem('@AIReplica_hasLaunched', 'true');
+      
+      setCurrentStep(AUTH_STEPS.SUCCESS);
+      
+    } catch (error) {
+      console.error('Google auth error:', error);
+      let errorMessage = 'Google sign-in failed. Please try again.';
+      
+      if (error.code === 'auth/invalid-credential') {
+        errorMessage = 'Invalid Google credentials. Please check your OAuth configuration.';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Network error. Please check your internet connection.';
+      } else if (error.code === 'auth/unauthorized-domain') {
+        errorMessage = 'This domain is not authorized for Google sign-in.';
+      }
+      
+      Alert.alert('Google Sign-In Error', errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (response?.type === 'success') {
       const { id_token } = response.params;
-      const credential = GoogleAuthProvider.credential(id_token);
-      handleGoogleSignIn(credential);
+      if (id_token) {
+        const credential = GoogleAuthProvider.credential(id_token);
+        handleGoogleSignIn(credential);
+      }
+    } else if (response?.type === 'error') {
+      console.error('Google OAuth error:', response.error);
+      Alert.alert('Google Sign-In Error', 'OAuth request failed. Please check your configuration.');
     }
   }, [response]);
 
@@ -138,32 +182,6 @@ const MultiStepAuth = () => {
     } catch (error) {
       console.error('Auth error:', error);
       Alert.alert('Authentication Error', error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async (credential) => {
-    setIsLoading(true);
-    try {
-      const userCredential = await signInWithCredential(auth, credential);
-      
-      // Store user info
-      await AsyncStorage.setItem('@AIReplica_user', JSON.stringify({
-        uid: userCredential.user.uid,
-        email: userCredential.user.email,
-        name: userCredential.user.displayName || 'User',
-        photoURL: userCredential.user.photoURL,
-        authMethod: 'google'
-      }));
-
-      await AsyncStorage.setItem('@AIReplica_hasLaunched', 'true');
-      
-      setCurrentStep(AUTH_STEPS.SUCCESS);
-      
-    } catch (error) {
-      console.error('Google auth error:', error);
-      Alert.alert('Google Sign-In Error', error.message);
     } finally {
       setIsLoading(false);
     }
@@ -358,14 +376,28 @@ const MultiStepAuth = () => {
       </View>
 
       <TouchableOpacity
-        style={styles.googleButton}
-        onPress={() => promptAsync()}
-        disabled={isLoading || !isGoogleConfigured}
+        style={[styles.googleButton, !isGoogleConfigured && styles.disabledButton]}
+        onPress={() => {
+          if (!isGoogleConfigured) {
+            Alert.alert(
+              'Google Sign-In Not Available',
+              'Google authentication is currently not properly configured. Please use email sign-in instead or contact support.',
+              [
+                { text: 'Use Email Instead', onPress: () => setIsLogin(true) },
+                { text: 'OK', style: 'cancel' }
+              ]
+            );
+            return;
+          }
+          promptAsync();
+        }}
+        disabled={isLoading}
       >
         <MaterialCommunityIcons name="google" size={24} color="#4285F4" />
         <Text style={styles.googleButtonText}>
-          {isGoogleConfigured ? 'Continue with Google' : 'Google Auth (Setup Required)'}
+          {isGoogleConfigured ? 'Continue with Google' : 'Google Auth (Not Available)'}
         </Text>
+        {isLoading && <ActivityIndicator size="small" color="#4285F4" style={{ marginLeft: 8 }} />}
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -661,6 +693,10 @@ const styles = StyleSheet.create({
   },
   primaryNavButtonText: {
     color: '#6A0572',
+  },
+  disabledButton: {
+    opacity: 0.6,
+    backgroundColor: '#f5f5f5',
   },
 });
 

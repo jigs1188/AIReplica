@@ -97,6 +97,15 @@ class ConfigurationManager {
           
           return { success: true, configurations: mergedConfig };
         } catch (cloudError) {
+          // Handle offline/connection errors gracefully
+          if (cloudError.code === 'unavailable' || 
+              cloudError.message.includes('offline') ||
+              cloudError.message.includes('network') ||
+              cloudError.message.includes('internet connection')) {
+            console.warn('Using offline mode - cloud sync unavailable');
+            return { success: true, configurations: localConfig, offline: true };
+          }
+          
           console.warn('Cloud sync failed, using local config:', cloudError);
           return { success: true, configurations: localConfig };
         }
@@ -154,6 +163,17 @@ class ConfigurationManager {
       return {};
       
     } catch (error) {
+      // Check if it's a connection/offline error
+      if (error.code === 'unavailable' || 
+          error.code === 'failed-precondition' || 
+          error.message.includes('offline') ||
+          error.message.includes('network') ||
+          error.message.includes('internet connection')) {
+        console.warn('Cloud configuration unavailable (offline mode):', error.message);
+        // Return empty config instead of throwing error
+        return {};
+      }
+      
       console.error('Error getting cloud configuration:', error);
       throw error;
     }

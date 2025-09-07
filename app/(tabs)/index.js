@@ -2,17 +2,17 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function MainDashboard() {
+export default function TabsIndex() {
   const router = useRouter();
   
   React.useEffect(() => {
-    // Redirect to professional dashboard
-    router.replace('/professional-main-dashboard');
+    // Redirect to main dashboard
+    router.replace('/dashboard');
   }, [router]);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Redirecting to Dashboard...</Text>
+      <Text>Redirecting...</Text>
     </View>
   );
 }

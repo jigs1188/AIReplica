@@ -10,6 +10,8 @@
     "web": "expo start --web",
     "dev": "expo start",
     "webhook": "node simple-webhook-server.js",
+    "one-click": "node one-click-platform-service.js",
+    "services": "concurrently \"npm run one-click\" \"npm run webhook\"",
     "test": "node test-system.js",
     "build": "expo build"
   },

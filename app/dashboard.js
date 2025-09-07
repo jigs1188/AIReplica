@@ -20,6 +20,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Complete AIReplica Feature Suite with enhanced descriptions
 const features = [
   { 
+    title: "� Real WhatsApp Setup", 
+    subtitle: "Connect YOUR phone number with OTP verification for real auto-replies", 
+    icon: "whatsapp", 
+    route: "/real-whatsapp-setup",
+    badge: "NEW",
+    color: "#25D366" 
+  },
+  { 
+    title: "�🚀 Smart Platform Setup", 
+    subtitle: "Connect ALL platforms with real credentials and AI training", 
+    icon: "lightning-bolt", 
+    route: "/real-one-click-platform-setup",
+    badge: "REAL",
+    color: "#10B981" 
+  },
+  { 
     title: "🤖 AIReplica Dashboard", 
     subtitle: "Central hub for managing auto-replies and platform integrations", 
     icon: "robot-outline", 

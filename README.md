@@ -1,28 +1,44 @@
 # 🤖 AIReplica - AI Personal Assistant
 
-**One-tap platform connections. AI handles everything.**
+**Real WhatsApp Auto-Reply System. AI handles everything.**
 
-## 🚀 Quick Test (2 Steps)
+## 🚀 Quick Start (3 Steps)
 
-### 1. Start the App
+### 1. Start Backend Servers
 ```bash
-npm install
-npm run dev
+# Terminal 1 - WhatsApp Service
+node whatsapp-business-service.js
+
+# Terminal 2 - Platform Service  
+node real-platform-service.js
 ```
 
-### 2. Start Backend (New Terminal)  
+### 2. Start Mobile App
 ```bash
-npm run webhook
+# Terminal 3 - Expo App
+npx expo start
 ```
 
-**Done!** Scan QR code with Expo Go to test.
+### 3. Setup WhatsApp Auto-Reply
+- Open Expo Go app and scan QR code
+- Go to Dashboard → "📱 Real WhatsApp Setup"
+- Verify your phone number with OTP
+- Configure auto-reply personality and rules
 
-## 📱 Test Features
+**Done!** Your WhatsApp will now auto-reply to friends and contacts.
 
-- ✅ **Connect platforms** (WhatsApp, Instagram, LinkedIn, etc.)
-- ✅ **AI auto-replies** (Powered by GPT-4)
-- ✅ **Simple dashboard** (One-tap controls)
-- ✅ **Subscription plans** (Free → Pro → Business)
+## � Complete Setup Guide
+
+**📱 [COMPLETE WHATSAPP GUIDE](COMPLETE_WHATSAPP_GUIDE.md)** - Follow this single guide for everything
+
+## 📱 What You Can Do
+
+- ✅ **Real WhatsApp Auto-Reply** (Your actual phone number)
+- ✅ **Phone Number Verification** (Real OTP via WhatsApp)
+- ✅ **AI-Powered Responses** (GPT-4 based on your personality)
+- ✅ **Live Message Testing** (Test with real friends)
+- ✅ **Customizable Personality** (Professional, Friendly, Casual, Helpful)
+- ✅ **Real-Time Monitoring** (See all conversations and responses)
 
 ## 🧪 Run System Test
 

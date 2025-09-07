@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { initializeFirestore, persistentLocalCache } from "firebase/firestore";
+import { initializeFirestore, persistentLocalCache, enableNetwork, disableNetwork } from "firebase/firestore";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -22,10 +22,32 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+
+// Initialize Firestore with offline persistence and better error handling
 const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
-  cache: persistentLocalCache({})
+  cache: persistentLocalCache({
+    cacheSizeBytes: 100 * 1024 * 1024, // 100MB cache
+  })
 });
 
+// Handle network state changes
+const handleNetworkChange = async () => {
+  try {
+    if (navigator.onLine) {
+      await enableNetwork(db);
+    } else {
+      await disableNetwork(db);
+    }
+  } catch (error) {
+    console.warn('Network state change error:', error);
+  }
+};
 
-export {db};
+// Listen for network changes (if available)
+if (typeof window !== 'undefined' && window.addEventListener) {
+  window.addEventListener('online', handleNetworkChange);
+  window.addEventListener('offline', handleNetworkChange);
+}
+
+export { db };
