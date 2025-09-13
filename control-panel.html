@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIReplica Control Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .status-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .control-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+        .control-card h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+        select, input, button {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #51cf66, #40c057);
+        }
+        .pending-messages {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .message-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .lists-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .list-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .connected { background-color: #40c057; }
+        .disconnected { background-color: #ff6b6b; }
+        .response-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AIReplica Control Panel</h1>
+        
+        <div class="status-card">
+            <h2>WhatsApp Status</h2>
+            <p id="connectionStatus">Checking connection...</p>
+            <div id="currentSettings" style="margin-top: 15px; font-size: 0.9em;"></div>
+        </div>
+
+        <div class="controls-grid">
+            <!-- Auto-Reply Mode Control -->
+            <div class="control-card">
+                <h3>🎛️ Auto-Reply Mode</h3>
+                <div class="form-group">
+                    <label for="autoReplyMode">Reply Mode:</label>
+                    <select id="autoReplyMode">
+                        <option value="ask">Ask Before Reply (Recommended)</option>
+                        <option value="auto">Auto Reply (Instant)</option>
+                        <option value="off">No Auto Reply</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="whitelistOnly" style="width: auto; margin-right: 8px;">
+                        Only reply to whitelisted numbers
+                    </label>
+                </div>
+                <button onclick="updateSettings()">💾 Update Settings</button>
+                <div id="settingsResponse" class="response-box" style="display: none;"></div>
+            </div>
+
+            <!-- Whitelist Management -->
+            <div class="control-card">
+                <h3>✅ Whitelist Management</h3>
+                <div class="form-group">
+                    <label for="whitelistNumber">Add Phone Number:</label>
+                    <input type="text" id="whitelistNumber" placeholder="e.g., 1234567890">
+                </div>
+                <button onclick="addToWhitelist()" class="btn-success">➕ Add to Whitelist</button>
+                <div id="whitelistResponse" class="response-box" style="display: none;"></div>
+                
+                <div id="whitelistItems" style="margin-top: 15px;">
+                    <strong>Whitelisted Numbers:</strong>
+                    <div id="whitelistList"></div>
+                </div>
+            </div>
+
+            <!-- Blacklist Management -->
+            <div class="control-card">
+                <h3>🚫 Blacklist Management</h3>
+                <div class="form-group">
+                    <label for="blacklistNumber">Add Phone Number:</label>
+                    <input type="text" id="blacklistNumber" placeholder="e.g., 1234567890">
+                </div>
+                <button onclick="addToBlacklist()" class="btn-danger">🚫 Add to Blacklist</button>
+                <div id="blacklistResponse" class="response-box" style="display: none;"></div>
+                
+                <div id="blacklistItems" style="margin-top: 15px;">
+                    <strong>Blacklisted Numbers:</strong>
+                    <div id="blacklistList"></div>
+                </div>
+            </div>
+
+            <!-- Manual Message -->
+            <div class="control-card">
+                <h3>📤 Send Manual Message</h3>
+                <div class="form-group">
+                    <label for="manualTo">To Phone Number:</label>
+                    <input type="text" id="manualTo" placeholder="e.g., 1234567890">
+                </div>
+                <div class="form-group">
+                    <label for="manualMessage">Message:</label>
+                    <input type="text" id="manualMessage" placeholder="Type your message...">
+                </div>
+                <button onclick="sendManualMessage()">📤 Send Message</button>
+                <div id="manualResponse" class="response-box" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Pending Messages Section -->
+        <div class="pending-messages">
+            <h3>⏳ Pending Messages (Waiting for Approval)</h3>
+            <p>These messages are waiting for your approval before AI replies:</p>
+            <div id="pendingMessagesList">
+                <p>Loading pending messages...</p>
+            </div>
+            <button onclick="refreshPendingMessages()">🔄 Refresh Pending Messages</button>
+        </div>
+
+        <!-- Lists Section -->
+        <div class="lists-section">
+            <div class="control-card">
+                <h3>📋 Recent Reply History</h3>
+                <div id="replyHistory">Loading history...</div>
+            </div>
+            
+            <div class="control-card">
+                <h3>📊 Statistics</h3>
+                <div id="statisticsPanel">Loading statistics...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3004/api';
+
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', function() {
+            checkStatus();
+            loadWhitelist();
+            loadBlacklist();
+            loadPendingMessages();
+            loadReplyHistory();
+            
+            // Refresh every 10 seconds
+            setInterval(() => {
+                checkStatus();
+                loadPendingMessages();
+            }, 10000);
+        });
+
+        async function checkStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/status`);
+                const data = await response.json();
+                
+                const statusEl = document.getElementById('connectionStatus');
+                const settingsEl = document.getElementById('currentSettings');
+                
+                if (data.connected) {
+                    statusEl.innerHTML = '<span class="status-indicator connected"></span>Connected and Ready';
+                } else {
+                    statusEl.innerHTML = '<span class="status-indicator disconnected"></span>Disconnected';
+                }
+                
+                if (data.settings) {
+                    settingsEl.innerHTML = `
+                        <strong>Current Settings:</strong><br>
+                        • Auto-Reply Mode: ${data.settings.autoReplyMode}<br>
+                        • Whitelist Only: ${data.settings.whitelistOnly ? 'Yes' : 'No'}<br>
+                        • Pending Messages: ${data.settings.pendingMessages}<br>
+                        • Whitelist: ${data.settings.whitelistCount} numbers<br>
+                        • Blacklist: ${data.settings.blacklistCount} numbers
+                    `;
+                    
+                    // Update form values
+                    document.getElementById('autoReplyMode').value = data.settings.autoReplyMode;
+                    document.getElementById('whitelistOnly').checked = data.settings.whitelistOnly;
+                }
+                
+            } catch (error) {
+                document.getElementById('connectionStatus').innerHTML = 
+                    '<span class="status-indicator disconnected"></span>Error connecting to service';
+            }
+        }
+
+        async function updateSettings() {
+            const autoReplyMode = document.getElementById('autoReplyMode').value;
+            const whitelistOnly = document.getElementById('whitelistOnly').checked;
+            
+            try {
+                const response = await fetch(`${API_BASE}/configure`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ autoReplyMode, whitelistOnly })
+                });
+                
+                const data = await response.json();
+                showResponse('settingsResponse', data);
+                checkStatus(); // Refresh status
+                
+            } catch (error) {
+                showResponse('settingsResponse', { success: false, error: error.message });
+            }
+        }
+
+        async function addToWhitelist() {
+            const number = document.getElementById('whitelistNumber').value.trim();
+            if (!number) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/add-whitelist/${number}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                showResponse('whitelistResponse', data);
+                
+                if (data.success) {
+                    document.getElementById('whitelistNumber').value = '';
+                    loadWhitelist();
+                }
+                
+            } catch (error) {
+                showResponse('whitelistResponse', { success: false, error: error.message });
+            }
+        }
+
+        async function addToBlacklist() {
+            const number = document.getElementById('blacklistNumber').value.trim();
+            if (!number) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/add-blacklist/${number}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                showResponse('blacklistResponse', data);
+                
+                if (data.success) {
+                    document.getElementById('blacklistNumber').value = '';
+                    loadBlacklist();
+                }
+                
+            } catch (error) {
+                showResponse('blacklistResponse', { success: false, error: error.message });
+            }
+        }
+
+        async function sendManualMessage() {
+            const to = document.getElementById('manualTo').value.trim();
+            const message = document.getElementById('manualMessage').value.trim();
+            
+            if (!to || !message) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/send-message`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to, message })
+                });
+                
+                const data = await response.json();
+                showResponse('manualResponse', data);
+                
+                if (data.success) {
+                    document.getElementById('manualTo').value = '';
+                    document.getElementById('manualMessage').value = '';
+                }
+                
+            } catch (error) {
+                showResponse('manualResponse', { success: false, error: error.message });
+            }
+        }
+
+        async function loadWhitelist() {
+            try {
+                const response = await fetch(`${API_BASE}/whitelist`);
+                const data = await response.json();
+                
+                const listEl = document.getElementById('whitelistList');
+                if (data.whitelist.length === 0) {
+                    listEl.innerHTML = '<p style="color: #666;">No numbers in whitelist</p>';
+                } else {
+                    listEl.innerHTML = data.whitelist.map(number => `
+                        <div class="list-item">
+                            <span>${number}</span>
+                            <button onclick="removeFromWhitelist('${number}')" style="width: auto; padding: 5px 10px; background: #ff6b6b;">Remove</button>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading whitelist:', error);
+            }
+        }
+
+        async function loadBlacklist() {
+            try {
+                const response = await fetch(`${API_BASE}/blacklist`);
+                const data = await response.json();
+                
+                const listEl = document.getElementById('blacklistList');
+                if (data.blacklist.length === 0) {
+                    listEl.innerHTML = '<p style="color: #666;">No numbers in blacklist</p>';
+                } else {
+                    listEl.innerHTML = data.blacklist.map(number => `
+                        <div class="list-item">
+                            <span>${number}</span>
+                            <button onclick="removeFromBlacklist('${number}')" style="width: auto; padding: 5px 10px; background: #40c057;">Remove</button>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading blacklist:', error);
+            }
+        }
+
+        async function loadPendingMessages() {
+            try {
+                const response = await fetch(`${API_BASE}/pending-messages`);
+                const data = await response.json();
+                
+                const listEl = document.getElementById('pendingMessagesList');
+                if (data.pendingMessages.length === 0) {
+                    listEl.innerHTML = '<p style="color: #666;">No pending messages</p>';
+                } else {
+                    listEl.innerHTML = data.pendingMessages.map(msg => `
+                        <div class="message-item">
+                            <strong>${msg.senderName} (${msg.senderNumber})</strong><br>
+                            <em>"${msg.content}"</em><br>
+                            <small>${new Date(msg.timestamp).toLocaleString()}</small><br>
+                            <div style="margin-top: 10px;">
+                                <button onclick="approveReply('${msg.id}')" class="btn-success" style="width: auto; margin-right: 10px;">✅ Approve & Send AI Reply</button>
+                                <button onclick="rejectReply('${msg.id}')" class="btn-danger" style="width: auto; margin-right: 10px;">❌ Reject</button>
+                                <button onclick="addToWhitelistFromPending('${msg.senderNumber}')" style="width: auto; background: #667eea;">➕ Add to Whitelist</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading pending messages:', error);
+            }
+        }
+
+        async function loadReplyHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/reply-history`);
+                const data = await response.json();
+                
+                const historyEl = document.getElementById('replyHistory');
+                if (data.history.length === 0) {
+                    historyEl.innerHTML = '<p style="color: #666;">No reply history yet</p>';
+                } else {
+                    historyEl.innerHTML = data.history.slice(-10).reverse().map(item => `
+                        <div class="list-item" style="flex-direction: column; align-items: flex-start;">
+                            <strong>${item.senderName} (${item.senderNumber})</strong>
+                            <small style="color: #666;">${new Date(item.timestamp).toLocaleString()}</small>
+                            <div style="margin-top: 5px; font-size: 0.9em;">
+                                <strong>Them:</strong> "${item.originalMessage}"<br>
+                                <strong>AI:</strong> "${item.aiReply}"
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                // Update statistics
+                document.getElementById('statisticsPanel').innerHTML = `
+                    <div style="text-align: center;">
+                        <h4>📊 Total AI Replies Sent</h4>
+                        <div style="font-size: 2em; color: #667eea; font-weight: bold;">${data.count}</div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error loading reply history:', error);
+            }
+        }
+
+        async function approveReply(messageId) {
+            try {
+                const response = await fetch(`${API_BASE}/approve-reply/${messageId}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                alert(data.message);
+                
+                if (data.success) {
+                    loadPendingMessages(); // Refresh pending messages
+                    loadReplyHistory(); // Refresh history
+                }
+                
+            } catch (error) {
+                alert('Error approving reply: ' + error.message);
+            }
+        }
+
+        async function rejectReply(messageId) {
+            try {
+                const response = await fetch(`${API_BASE}/reject-reply/${messageId}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                alert(data.message);
+                
+                if (data.success) {
+                    loadPendingMessages(); // Refresh pending messages
+                }
+                
+            } catch (error) {
+                alert('Error rejecting reply: ' + error.message);
+            }
+        }
+
+        async function addToWhitelistFromPending(number) {
+            try {
+                const response = await fetch(`${API_BASE}/add-whitelist/${number}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                alert(data.message);
+                
+                if (data.success) {
+                    loadWhitelist();
+                }
+                
+            } catch (error) {
+                alert('Error adding to whitelist: ' + error.message);
+            }
+        }
+
+        async function removeFromWhitelist(number) {
+            try {
+                const response = await fetch(`${API_BASE}/remove-whitelist/${number}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                alert(data.message);
+                
+                if (data.success) {
+                    loadWhitelist();
+                }
+                
+            } catch (error) {
+                alert('Error removing from whitelist: ' + error.message);
+            }
+        }
+
+        async function removeFromBlacklist(number) {
+            try {
+                const response = await fetch(`${API_BASE}/remove-blacklist/${number}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                alert(data.message);
+                
+                if (data.success) {
+                    loadBlacklist();
+                }
+                
+            } catch (error) {
+                alert('Error removing from blacklist: ' + error.message);
+            }
+        }
+
+        function refreshPendingMessages() {
+            loadPendingMessages();
+        }
+
+        function showResponse(elementId, data) {
+            const el = document.getElementById(elementId);
+            el.style.display = 'block';
+            el.innerHTML = JSON.stringify(data, null, 2);
+            el.style.color = data.success ? 'green' : 'red';
+            
+            setTimeout(() => {
+                el.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

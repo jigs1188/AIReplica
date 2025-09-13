@@ -16,156 +16,143 @@ import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { getUserSettings, validateAPIKey } from "../utils/aiSettings";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createShadow, shadowPresets } from "../utils/shadowUtils";
 
-// Complete AIReplica Feature Suite with enhanced descriptions
+// Complete AIReplica Feature Suite - REDESIGNED FOR BETTER UX
 const features = [
   { 
-    title: "� Real WhatsApp Setup", 
-    subtitle: "Connect YOUR phone number with OTP verification for real auto-replies", 
-    icon: "whatsapp", 
-    route: "/real-whatsapp-setup",
-    badge: "NEW",
-    color: "#25D366" 
+    title: "� Quick Start", 
+    subtitle: "Connect your first platform and start auto-replies in 2 minutes", 
+    icon: "rocket-launch", 
+    route: "/quick-start",
+    badge: "START HERE",
+    color: "#FF6B35",
+    priority: 1 
   },
   { 
-    title: "�🚀 Smart Platform Setup", 
-    subtitle: "Connect ALL platforms with real credentials and AI training", 
-    icon: "lightning-bolt", 
-    route: "/real-one-click-platform-setup",
-    badge: "REAL",
+    title: "� History & Conversations", 
+    subtitle: "View all AI conversations and auto-reply history across platforms", 
+    icon: "history", 
+    route: "/history",
+    badge: "TRACK",
+    color: "#3B82F6" 
+  },
+  { 
+    title: "🧪 Test AI Replies", 
+    subtitle: "See how your AI responds before going live", 
+    icon: "test-tube", 
+    route: "/test-center",
+    badge: "TEST",
+    color: "#3B82F6",
+    priority: 3 
+  },
+  { 
+    title: "📝 Custom Prompts", 
+    subtitle: "Create and manage AI prompts for different scenarios", 
+    icon: "text-box-multiple", 
+    route: "/prompts",
+    badge: "CUSTOM",
     color: "#10B981" 
   },
   { 
-    title: "🤖 AIReplica Dashboard", 
-    subtitle: "Central hub for managing auto-replies and platform integrations", 
-    icon: "robot-outline", 
-    route: "/ai-replica-dashboard",
-    badge: "CORE",
-    color: "#6A0572" 
+    title: "🎓 Training Center", 
+    subtitle: "Train your AI to match your communication style", 
+    icon: "school", 
+    route: "/(tabs)/training",
+    badge: "TRAIN",
+    color: "#8E44AD" 
   },
   { 
-    title: "🗣️ Clone Chat Interface", 
-    subtitle: "Chat with your AI personality twin and test responses", 
-    icon: "account-multiple", 
+    title: "💬 Chat with AI Clone", 
+    subtitle: "Chat with your AI twin to see how it responds", 
+    icon: "robot-outline", 
     route: "/(tabs)/clone",
     badge: null,
     color: "#AB47BC" 
   },
   { 
-    title: "🎓 Training Center", 
-    subtitle: "Train your AI to match your unique communication style", 
-    icon: "school", 
-    route: "/(tabs)/training",
-    badge: "ESSENTIAL",
-    color: "#8E44AD" 
+    title: "💎 Subscription Plans", 
+    subtitle: "Upgrade for more platforms, faster responses & advanced features", 
+    icon: "crown", 
+    route: "/subscription-plans",
+    badge: "PRO",
+    color: "#EC4899" 
   },
   { 
-    title: "⚡ Auto-Reply Setup", 
-    subtitle: "Configure intelligent responses across all platforms", 
-    icon: "reply-all", 
-    route: "/auto-reply",
-    badge: "AUTO",
-    color: "#9B59B6" 
+    title: "⚙️ Settings & Sync", 
+    subtitle: "Configure AI behavior, sync across devices, and manage preferences", 
+    icon: "cog", 
+    route: "/settings",
+    badge: "SYNC",
+    color: "#F59E0B" 
   },
   { 
-    title: "🔗 Integration Hub", 
-    subtitle: "Connect WhatsApp, Email, Instagram, LinkedIn & more platforms", 
+    title: "� Integration Hub", 
+    subtitle: "Connect your platforms for real auto-replies", 
     icon: "link-variant", 
-    route: "/integration-dashboard",
+    route: "/integration-hub",
     badge: "CONNECT",
-    color: "#7B1FA2" 
+    color: "#FF6B35" 
   },
   { 
     title: "📅 Meeting Memory", 
-    subtitle: "AI-powered meeting insights and intelligent follow-ups", 
+    subtitle: "AI-powered meeting insights and follow-ups", 
     icon: "calendar-clock", 
     route: "/MeetingMemory",
     badge: null,
     color: "#673AB7" 
-  },
-  { 
-    title: "📜 Conversation History", 
-    subtitle: "Review past conversations and AI decision patterns", 
-    icon: "history", 
-    route: "/history",
-    badge: null,
-    color: "#512DA8" 
-  },
-  { 
-    title: "💬 Prompt Templates", 
-    subtitle: "Create and manage smart response templates", 
-    icon: "text-box-multiple", 
-    route: "/prompts",
-    badge: null,
-    color: "#4527A0" 
-  },
-  { 
-    title: "👑 Subscription Plans", 
-    subtitle: "Upgrade for more platforms and advanced features", 
-    icon: "crown", 
-    route: "/subscription-plans",
-    badge: "PRO",
-    color: "#FF6B35" 
-  },
-  { 
-    title: "⚙️ Settings & Sync", 
-    subtitle: "Configure preferences and sync across devices", 
-    icon: "cog-outline", 
-    route: "/settings",
-    badge: null,
-    color: "#607D8B" 
-  },
+  }
 ];
 
-const FeatureCard = ({ title, subtitle, iconName, onPress, color = "#6A0572", badge = null }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    style={{
-      backgroundColor: "#fff",
-      borderRadius: 18,
-      padding: 18,
-      marginBottom: 14,
-      flexDirection: "row",
-      alignItems: "center",
-      shadowColor: color,
-      shadowOpacity: 0.08,
-      shadowRadius: 8,
-      elevation: 3,
-      borderLeftWidth: 4,
-      borderLeftColor: color,
-    }}
-    activeOpacity={0.88}
-  >
-    <View style={{ 
-      width: 52, 
-      height: 52, 
-      borderRadius: 14, 
-      backgroundColor: `${color}15`, 
-      justifyContent: "center", 
-      alignItems: "center" 
-    }}>
-      <MaterialCommunityIcons name={iconName} size={28} color={color} />
-    </View>
-    <View style={{ marginLeft: 16, flex: 1 }}>
-      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 2 }}>
-        <Text style={{ fontSize: 17, fontWeight: "700", color: "#222", flex: 1 }}>{title}</Text>
-        {badge && (
-          <View style={{ 
-            backgroundColor: color, 
-            paddingHorizontal: 8, 
-            paddingVertical: 2, 
-            borderRadius: 10,
-            marginLeft: 8 
-          }}>
-            <Text style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>{badge}</Text>
+const FeatureCard = ({ title, subtitle, iconName, onPress, color, badge }) => {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={{
+        backgroundColor: "#fff",
+        borderRadius: 16,
+        padding: 20,
+        marginBottom: 16,
+        minHeight: 120, // Ensure mobile-friendly height
+        ...createShadow("card")
+      }}
+      activeOpacity={0.7}
+    >
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <View style={{ flex: 1, marginRight: 16 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
+            <View style={{ 
+              backgroundColor: color + "20", 
+              borderRadius: 12, 
+              padding: 12, // Increased for mobile
+              marginRight: 12 
+            }}>
+              <MaterialCommunityIcons name={iconName} size={28} color={color} />
+            </View>
+            {badge && (
+              <View style={{
+                backgroundColor: color,
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+                borderRadius: 12,
+                marginLeft: "auto"
+              }}>
+                <Text style={{ color: "#fff", fontSize: 11, fontWeight: "600" }}>{badge}</Text>
+              </View>
+            )}
           </View>
-        )}
+          <Text style={{ fontSize: 18, fontWeight: "700", color: "#222", marginBottom: 6 }}>
+            {title}
+          </Text>
+          <Text style={{ fontSize: 14, color: "#666", lineHeight: 20 }}>
+            {subtitle}
+          </Text>
+        </View>
+        <MaterialCommunityIcons name="chevron-right" size={24} color="#ccc" />
       </View>
-      <Text style={{ fontSize: 13, color: "#666", lineHeight: 18 }}>{subtitle}</Text>
-    </View>
-    <Ionicons name="chevron-forward" size={22} color="#9CA3AF" />
-  </TouchableOpacity>
-);
+    </TouchableOpacity>
+  );
+};
 
 const StatCard = ({ icon, value, label, color }) => (
   <View style={{ 
@@ -175,10 +162,12 @@ const StatCard = ({ icon, value, label, color }) => (
     padding: 16, 
     alignItems: "center",
     marginHorizontal: 4,
-    shadowColor: color,
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
+    ...createShadow({
+      shadowColor: color,
+      shadowOpacity: 0.05,
+      shadowRadius: 6,
+      elevation: 2
+    }),
   }}>
     <View style={{ 
       width: 40, 
@@ -324,7 +313,7 @@ export default function DashboardScreen() {
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity 
             style={{ padding: 8, marginRight: 4 }} 
-            onPress={() => router.push("/integration-dashboard")}
+            onPress={() => router.push("/integration-hub")}
           >
             <Ionicons name="add-circle-outline" size={24} color="#fff" />
           </TouchableOpacity>
@@ -373,6 +362,99 @@ export default function DashboardScreen() {
             label="Messages Today" 
             color="#3B82F6" 
           />
+        </View>
+
+        {/* Quick Action Bar - Most Used Features */}
+        <View style={{ marginBottom: 24 }}>
+          <Text style={{ fontSize: 18, fontWeight: "700", color: "#222", marginBottom: 12 }}>
+            ⚡ Quick Actions
+          </Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -4 }}>
+            <TouchableOpacity
+              onPress={() => router.push("/integration-hub")}
+              style={{
+                backgroundColor: "#6366F1",
+                paddingHorizontal: 16,
+                paddingVertical: 10,
+                borderRadius: 20,
+                marginHorizontal: 4,
+                flexDirection: "row",
+                alignItems: "center",
+                ...createShadow({
+                  shadowColor: "#6366F1",
+                  shadowOpacity: 0.3,
+                  shadowRadius: 6,
+                  elevation: 4
+                })
+              }}
+            >
+              <MaterialCommunityIcons name="link-variant" size={16} color="#fff" style={{ marginRight: 6 }} />
+              <Text style={{ color: "#fff", fontWeight: "600", fontSize: 14 }}>Connect Platforms</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/test-center")}
+              style={{
+                backgroundColor: "#25D366",
+                paddingHorizontal: 16,
+                paddingVertical: 10,
+                borderRadius: 20,
+                marginHorizontal: 4,
+                flexDirection: "row",
+                alignItems: "center",
+                ...createShadow({
+                  shadowColor: "#25D366",
+                  shadowOpacity: 0.3,
+                  shadowRadius: 6,
+                  elevation: 4
+                })
+              }}
+            >
+              <MaterialCommunityIcons name="test-tube" size={16} color="#fff" style={{ marginRight: 6 }} />
+              <Text style={{ color: "#fff", fontWeight: "600", fontSize: 14 }}>Test AI</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/history")}
+              style={{
+                backgroundColor: "#3B82F6",
+                paddingHorizontal: 16,
+                paddingVertical: 10,
+                borderRadius: 20,
+                marginHorizontal: 4,
+                flexDirection: "row",
+                alignItems: "center",
+                ...createShadow({
+                  shadowColor: "#3B82F6",
+                  shadowOpacity: 0.3,
+                  shadowRadius: 6,
+                  elevation: 4
+                })
+              }}
+            >
+              <MaterialCommunityIcons name="history" size={16} color="#fff" style={{ marginRight: 6 }} />
+              <Text style={{ color: "#fff", fontWeight: "600", fontSize: 14 }}>History</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/settings")}
+              style={{
+                backgroundColor: "#F59E0B",
+                paddingHorizontal: 16,
+                paddingVertical: 10,
+                borderRadius: 20,
+                marginHorizontal: 4,
+                flexDirection: "row",
+                alignItems: "center",
+                ...createShadow({
+                  shadowColor: "#F59E0B",
+                  shadowOpacity: 0.3,
+                  shadowRadius: 6,
+                  elevation: 4
+                })
+              }}
+            >
+              <MaterialCommunityIcons name="cog" size={16} color="#fff" style={{ marginRight: 6 }} />
+              <Text style={{ color: "#fff", fontWeight: "600", fontSize: 14 }}>Settings</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
 
         {/* Hero / AIReplica Auto-Reply CTA */}

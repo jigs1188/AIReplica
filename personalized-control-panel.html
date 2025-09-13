@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIReplica Personalized Control Center</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .platform-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 5px;
+        }
+        .tab-button {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 0 5px;
+        }
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .platform-panel {
+            display: none;
+        }
+        .platform-panel.active {
+            display: block;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .status-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .controls-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .control-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+        .control-card h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+        select, input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .btn-success { background: linear-gradient(135deg, #51cf66, #40c057); }
+        .btn-danger { background: linear-gradient(135deg, #ff6b6b, #ee5a52); }
+        .btn-warning { background: linear-gradient(135deg, #ffc107, #ff8f00); }
+        .contact-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .contact-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .contact-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .contact-name {
+            font-weight: bold;
+            color: #333;
+        }
+        .contact-role {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .contact-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .contact-actions button {
+            padding: 5px 10px;
+            font-size: 12px;
+            width: auto;
+        }
+        .pending-section {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .pending-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .pending-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .pending-actions button {
+            width: auto;
+            padding: 8px 16px;
+        }
+        .response-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .connected { background-color: #40c057; }
+        .disconnected { background-color: #ff6b6b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 AIReplica Personalized Control Center</h1>
+        
+        <!-- Platform Tabs -->
+        <div class="platform-tabs">
+            <button class="tab-button active" onclick="switchPlatform('whatsapp')">📱 WhatsApp</button>
+            <button class="tab-button" onclick="switchPlatform('instagram')">📸 Instagram</button>
+            <button class="tab-button" onclick="switchPlatform('gmail')">📧 Gmail</button>
+            <button class="tab-button" onclick="switchPlatform('linkedin')">💼 LinkedIn</button>
+            <button class="tab-button" onclick="switchPlatform('contacts')">👥 Contacts</button>
+        </div>
+
+        <!-- WhatsApp Panel -->
+        <div id="whatsapp-panel" class="platform-panel active">
+            <div class="status-grid">
+                <div class="status-card">
+                    <h3>📱 WhatsApp Status</h3>
+                    <p id="whatsapp-status">Checking connection...</p>
+                    <small id="whatsapp-details"></small>
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <div class="control-card">
+                    <h3>🎛️ WhatsApp Settings</h3>
+                    <div class="form-group">
+                        <label for="wa-mode">Auto-Reply Mode:</label>
+                        <select id="wa-mode">
+                            <option value="ask">Ask Before Reply</option>
+                            <option value="auto">Auto Reply</option>
+                            <option value="off">No Auto Reply</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="wa-personalized" checked> Personalized Responses
+                        </label>
+                    </div>
+                    <button onclick="updateWhatsAppSettings()">💾 Update Settings</button>
+                </div>
+
+                <div class="control-card">
+                    <h3>⏳ WhatsApp Pending Messages</h3>
+                    <div id="whatsapp-pending">Loading...</div>
+                    <button onclick="refreshWhatsAppPending()">🔄 Refresh</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instagram Panel -->
+        <div id="instagram-panel" class="platform-panel">
+            <div class="status-grid">
+                <div class="status-card">
+                    <h3>📸 Instagram Status</h3>
+                    <p id="instagram-status">Checking connection...</p>
+                    <small id="instagram-details"></small>
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <div class="control-card">
+                    <h3>🎛️ Instagram Settings</h3>
+                    <div class="form-group">
+                        <label for="ig-mode">Auto-Reply Mode:</label>
+                        <select id="ig-mode">
+                            <option value="ask">Ask Before Reply</option>
+                            <option value="auto">Auto Reply</option>
+                            <option value="off">No Auto Reply</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="ig-influencer"> Influencer Mode
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="ig-verified-only"> Verified Accounts Only
+                        </label>
+                    </div>
+                    <button onclick="updateInstagramSettings()">💾 Update Settings</button>
+                </div>
+
+                <div class="control-card">
+                    <h3>📨 Test Instagram DM</h3>
+                    <div class="form-group">
+                        <label for="ig-test-username">From Username:</label>
+                        <input type="text" id="ig-test-username" placeholder="@username">
+                    </div>
+                    <div class="form-group">
+                        <label for="ig-test-message">Message:</label>
+                        <input type="text" id="ig-test-message" placeholder="Hey! Love your content...">
+                    </div>
+                    <button onclick="testInstagramDM()" class="btn-warning">📸 Test DM</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gmail Panel -->
+        <div id="gmail-panel" class="platform-panel">
+            <div class="status-grid">
+                <div class="status-card">
+                    <h3>📧 Gmail Status</h3>
+                    <p id="gmail-status">Checking connection...</p>
+                    <small id="gmail-details"></small>
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <div class="control-card">
+                    <h3>🎛️ Gmail Settings</h3>
+                    <div class="form-group">
+                        <label for="gmail-mode">Auto-Reply Mode:</label>
+                        <select id="gmail-mode">
+                            <option value="ask">Ask Before Reply</option>
+                            <option value="auto">Auto Reply</option>
+                            <option value="off">No Auto Reply</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="gmail-signature">Default Signature:</label>
+                        <select id="gmail-signature">
+                            <option value="professional">Professional</option>
+                            <option value="casual">Casual</option>
+                            <option value="business">Business</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="gmail-ooo"> Out of Office Mode
+                        </label>
+                    </div>
+                    <button onclick="updateGmailSettings()">💾 Update Settings</button>
+                </div>
+
+                <div class="control-card">
+                    <h3>📧 Test Email</h3>
+                    <div class="form-group">
+                        <label for="gmail-test-from">From Email:</label>
+                        <input type="email" id="gmail-test-from" placeholder="sender@company.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="gmail-test-subject">Subject:</label>
+                        <input type="text" id="gmail-test-subject" placeholder="Meeting Request">
+                    </div>
+                    <div class="form-group">
+                        <label for="gmail-test-body">Email Body:</label>
+                        <textarea id="gmail-test-body" placeholder="Hi, I'd like to schedule..."></textarea>
+                    </div>
+                    <button onclick="testGmailEmail()" class="btn-warning">📧 Test Email</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LinkedIn Panel -->
+        <div id="linkedin-panel" class="platform-panel">
+            <div class="status-grid">
+                <div class="status-card">
+                    <h3>💼 LinkedIn Status</h3>
+                    <p id="linkedin-status">Checking connection...</p>
+                    <small id="linkedin-details"></small>
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <div class="control-card">
+                    <h3>🎛️ LinkedIn Settings</h3>
+                    <div class="form-group">
+                        <label for="li-mode">Auto-Reply Mode:</label>
+                        <select id="li-mode">
+                            <option value="ask">Ask Before Reply</option>
+                            <option value="auto">Auto Reply</option>
+                            <option value="off">No Auto Reply</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="li-job-search"> Job Search Mode
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="li-auto-connect"> Auto-Accept Recruiters
+                        </label>
+                    </div>
+                    <button onclick="updateLinkedInSettings()">💾 Update Settings</button>
+                </div>
+
+                <div class="control-card">
+                    <h3>💼 Test LinkedIn Message</h3>
+                    <div class="form-group">
+                        <label for="li-test-name">From Name:</label>
+                        <input type="text" id="li-test-name" placeholder="John Smith">
+                    </div>
+                    <div class="form-group">
+                        <label for="li-test-title">Their Title:</label>
+                        <input type="text" id="li-test-title" placeholder="Senior Recruiter">
+                    </div>
+                    <div class="form-group">
+                        <label for="li-test-message">Message:</label>
+                        <textarea id="li-test-message" placeholder="Hi, I have an exciting opportunity..."></textarea>
+                    </div>
+                    <button onclick="testLinkedInMessage()" class="btn-warning">💼 Test Message</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contacts Panel -->
+        <div id="contacts-panel" class="platform-panel">
+            <div class="controls-section">
+                <div class="control-card">
+                    <h3>👤 Add/Edit Contact</h3>
+                    <div class="form-group">
+                        <label for="contact-number">Phone/Email/ID:</label>
+                        <input type="text" id="contact-number" placeholder="1234567890 or email@domain.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-name">Name:</label>
+                        <input type="text" id="contact-name" placeholder="John Smith">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-role">Role/Relationship:</label>
+                        <select id="contact-role">
+                            <option value="general">General</option>
+                            <option value="hr">HR Professional</option>
+                            <option value="client">Client</option>
+                            <option value="manager">Manager</option>
+                            <option value="colleague">Colleague</option>
+                            <option value="recruiter">Recruiter</option>
+                            <option value="friend">Friend</option>
+                            <option value="family">Family</option>
+                            <option value="business">Business Contact</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-position">Their Position:</label>
+                        <input type="text" id="contact-position" placeholder="Senior Manager, Tech Recruiter, etc.">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-instructions">Custom Instructions:</label>
+                        <textarea id="contact-instructions" placeholder="Always mention my React.js experience when talking to this person..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="contact-auto"> Enable Auto-Conversation (No Approval Needed)
+                        </label>
+                    </div>
+                    <button onclick="saveContact()" class="btn-success">💾 Save Contact</button>
+                </div>
+
+                <div class="control-card">
+                    <h3>📋 Contact List</h3>
+                    <div id="contacts-list" class="contact-list">
+                        Loading contacts...
+                    </div>
+                    <button onclick="loadContacts()">🔄 Refresh Contacts</button>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <h3>📄 Your Resume/Background Info</h3>
+                <div class="form-group">
+                    <label for="user-resume">Resume/Background (Used for professional conversations):</label>
+                    <textarea id="user-resume" style="height: 150px;" placeholder="Paste your resume or key background information here. This will be used when talking to HR, recruiters, clients, etc."></textarea>
+                </div>
+                <button onclick="saveUserResume()" class="btn-success">💾 Save Resume Info</button>
+            </div>
+        </div>
+
+        <!-- Global Pending Messages -->
+        <div class="pending-section">
+            <h3>⏳ All Pending Messages</h3>
+            <div id="all-pending-messages">
+                Loading pending messages...
+            </div>
+            <button onclick="refreshAllPending()">🔄 Refresh All Pending</button>
+        </div>
+    </div>
+
+    <script>
+        let currentPlatform = 'whatsapp';
+        
+        // API Base URLs
+        const APIs = {
+            whatsapp: 'http://localhost:3006/api',
+            instagram: 'http://localhost:3007/api/instagram',
+            gmail: 'http://localhost:3008/api/gmail',
+            linkedin: 'http://localhost:3009/api/linkedin',
+            contacts: 'http://localhost:3005/api'
+        };
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllStatuses();
+            loadContacts();
+            refreshAllPending();
+            
+            // Auto-refresh every 15 seconds
+            setInterval(() => {
+                loadAllStatuses();
+                refreshAllPending();
+            }, 15000);
+        });
+
+        function switchPlatform(platform) {
+            // Hide all panels
+            document.querySelectorAll('.platform-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected panel and activate tab
+            document.getElementById(`${platform}-panel`).classList.add('active');
+            event.target.classList.add('active');
+            
+            currentPlatform = platform;
+        }
+
+        async function loadAllStatuses() {
+            // Load WhatsApp status
+            try {
+                const response = await fetch(`${APIs.whatsapp}/status`);
+                const data = await response.json();
+                document.getElementById('whatsapp-status').innerHTML = 
+                    `<span class="status-indicator ${data.connected ? 'connected' : 'disconnected'}"></span>
+                     ${data.connected ? 'Connected and Ready' : 'Disconnected'}`;
+                document.getElementById('whatsapp-details').textContent = 
+                    `Pending: ${data.settings?.pendingMessages || 0} | Contacts: ${data.personalizedContacts || 0}`;
+            } catch (error) {
+                document.getElementById('whatsapp-status').innerHTML = 
+                    '<span class="status-indicator disconnected"></span>Service Offline';
+            }
+
+            // Load other platform statuses
+            await loadPlatformStatus('instagram');
+            await loadPlatformStatus('gmail');
+            await loadPlatformStatus('linkedin');
+        }
+
+        async function loadPlatformStatus(platform) {
+            try {
+                const response = await fetch(`${APIs[platform]}/status`);
+                const data = await response.json();
+                const statusEl = document.getElementById(`${platform}-status`);
+                const detailsEl = document.getElementById(`${platform}-details`);
+                
+                if (statusEl) {
+                    statusEl.innerHTML = `<span class="status-indicator connected"></span>Service Running`;
+                    if (detailsEl) {
+                        const pending = data.pendingDMs || data.pendingEmails || data.pendingMessages || 0;
+                        detailsEl.textContent = `Pending: ${pending} | Mode: ${data.settings?.autoReplyMode || 'ask'}`;
+                    }
+                }
+            } catch (error) {
+                const statusEl = document.getElementById(`${platform}-status`);
+                if (statusEl) {
+                    statusEl.innerHTML = '<span class="status-indicator disconnected"></span>Service Offline';
+                }
+            }
+        }
+
+        async function loadContacts() {
+            try {
+                const response = await fetch(`${APIs.contacts}/contacts`);
+                const data = await response.json();
+                
+                const contactsList = document.getElementById('contacts-list');
+                if (data.contacts.length === 0) {
+                    contactsList.innerHTML = '<p>No contacts configured yet.</p>';
+                } else {
+                    contactsList.innerHTML = data.contacts.map(contact => `
+                        <div class="contact-item">
+                            <div class="contact-header">
+                                <span class="contact-name">${contact.name}</span>
+                                <span class="contact-role">${contact.role}</span>
+                            </div>
+                            <small>${contact.number}</small>
+                            <div style="margin-top: 5px; font-size: 12px;">
+                                Position: ${contact.theirPosition || 'Not specified'}<br>
+                                Auto-conversation: ${contact.autoConversation ? 'Yes' : 'No'}
+                            </div>
+                            <div class="contact-actions">
+                                <button onclick="editContact('${contact.number}')" style="background: #667eea;">Edit</button>
+                                <button onclick="toggleAutoConversation('${contact.number}', ${!contact.autoConversation})" 
+                                        class="${contact.autoConversation ? 'btn-danger' : 'btn-success'}">
+                                    ${contact.autoConversation ? 'Disable Auto' : 'Enable Auto'}
+                                </button>
+                                <button onclick="testPersonalizedResponse('${contact.number}')" class="btn-warning">Test</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading contacts:', error);
+            }
+        }
+
+        async function saveContact() {
+            const contactData = {
+                name: document.getElementById('contact-name').value,
+                role: document.getElementById('contact-role').value,
+                theirPosition: document.getElementById('contact-position').value,
+                customInstructions: document.getElementById('contact-instructions').value,
+                autoConversation: document.getElementById('contact-auto').checked
+            };
+            
+            const number = document.getElementById('contact-number').value;
+            
+            if (!number || !contactData.name) {
+                alert('Please provide at least a phone/email and name');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${APIs.contacts}/contacts/${number}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(contactData)
+                });
+                
+                const result = await response.json();
+                alert(result.message);
+                
+                if (result.success) {
+                    // Clear form
+                    document.getElementById('contact-number').value = '';
+                    document.getElementById('contact-name').value = '';
+                    document.getElementById('contact-position').value = '';
+                    document.getElementById('contact-instructions').value = '';
+                    document.getElementById('contact-auto').checked = false;
+                    
+                    loadContacts();
+                }
+                
+            } catch (error) {
+                alert('Error saving contact: ' + error.message);
+            }
+        }
+
+        async function refreshAllPending() {
+            let allPending = [];
+            
+            // Collect pending from all platforms
+            try {
+                const platforms = ['whatsapp', 'instagram', 'gmail', 'linkedin'];
+                
+                for (const platform of platforms) {
+                    try {
+                        let endpoint = '';
+                        switch (platform) {
+                            case 'whatsapp':
+                                endpoint = `${APIs.whatsapp}/pending-messages`;
+                                break;
+                            case 'instagram':
+                                endpoint = `${APIs.instagram}/pending-dms`;
+                                break;
+                            case 'gmail':
+                                endpoint = `${APIs.gmail}/pending-emails`;
+                                break;
+                            case 'linkedin':
+                                endpoint = `${APIs.linkedin}/pending-messages`;
+                                break;
+                        }
+                        
+                        const response = await fetch(endpoint);
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            const messages = data.pendingMessages || data.pendingDMs || data.pendingEmails || [];
+                            messages.forEach(msg => {
+                                msg.platform = platform;
+                            });
+                            allPending = allPending.concat(messages);
+                        }
+                        
+                    } catch (error) {
+                        console.log(`${platform} service not available`);
+                    }
+                }
+                
+                // Display all pending messages
+                const pendingEl = document.getElementById('all-pending-messages');
+                if (allPending.length === 0) {
+                    pendingEl.innerHTML = '<p>No pending messages across all platforms 🎉</p>';
+                } else {
+                    pendingEl.innerHTML = allPending.map(msg => `
+                        <div class="pending-item">
+                            <strong>${msg.platform.toUpperCase()}: ${msg.senderName || msg.from || msg.senderUsername} 
+                            ${msg.role ? `(${msg.role})` : ''}</strong><br>
+                            <em>"${msg.content || msg.body || msg.subject}"</em><br>
+                            <small>${new Date(msg.timestamp).toLocaleString()}</small>
+                            <div class="pending-actions">
+                                <button onclick="approvePlatformMessage('${msg.platform}', '${msg.id}')" class="btn-success">
+                                    ✅ Approve & Send AI Reply
+                                </button>
+                                <button onclick="rejectPlatformMessage('${msg.platform}', '${msg.id}')" class="btn-danger">
+                                    ❌ Reject
+                                </button>
+                                <button onclick="showResponsePreview('${msg.platform}', '${msg.id}')" class="btn-warning">
+                                    👁️ Preview AI Response
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+            } catch (error) {
+                console.error('Error loading pending messages:', error);
+            }
+        }
+
+        async function approvePlatformMessage(platform, messageId) {
+            try {
+                let endpoint = '';
+                switch (platform) {
+                    case 'whatsapp':
+                        endpoint = `${APIs.whatsapp}/approve-reply/${messageId}`;
+                        break;
+                    case 'instagram':
+                        endpoint = `${APIs.instagram}/approve-dm/${messageId}`;
+                        break;
+                    case 'gmail':
+                        endpoint = `${APIs.gmail}/approve-email/${messageId}`;
+                        break;
+                    case 'linkedin':
+                        endpoint = `${APIs.linkedin}/approve-message/${messageId}`;
+                        break;
+                }
+                
+                const response = await fetch(endpoint, { method: 'POST' });
+                const result = await response.json();
+                
+                alert(result.message);
+                if (result.success) {
+                    refreshAllPending();
+                }
+                
+            } catch (error) {
+                alert('Error approving message: ' + error.message);
+            }
+        }
+
+        async function testPersonalizedResponse(contactNumber) {
+            const testMessage = prompt('Enter a test message to see how AI would respond to this contact:');
+            if (!testMessage) return;
+            
+            try {
+                const response = await fetch(`${APIs.contacts}/generate-reply/${contactNumber}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: testMessage })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`AI Response Preview:\n\n"${result.reply}"\n\nRole: ${result.role}\nContact: ${result.contactName}`);
+                } else {
+                    alert('Error generating response: ' + result.error);
+                }
+                
+            } catch (error) {
+                alert('Error testing response: ' + error.message);
+            }
+        }
+
+        // Platform-specific test functions
+        async function testInstagramDM() {
+            const username = document.getElementById('ig-test-username').value;
+            const message = document.getElementById('ig-test-message').value;
+            
+            if (!username || !message) {
+                alert('Please provide username and message');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${APIs.instagram}/simulate-dm`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        senderUsername: username,
+                        message: message,
+                        isVerified: false,
+                        followerCount: 1000
+                    })
+                });
+                
+                const result = await response.json();
+                alert(result.message);
+                refreshAllPending();
+                
+            } catch (error) {
+                alert('Error testing Instagram DM: ' + error.message);
+            }
+        }
+
+        async function testGmailEmail() {
+            const from = document.getElementById('gmail-test-from').value;
+            const subject = document.getElementById('gmail-test-subject').value;
+            const body = document.getElementById('gmail-test-body').value;
+            
+            if (!from || !subject || !body) {
+                alert('Please fill all email fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${APIs.gmail}/simulate-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from, subject, body })
+                });
+                
+                const result = await response.json();
+                alert(result.message);
+                refreshAllPending();
+                
+            } catch (error) {
+                alert('Error testing Gmail email: ' + error.message);
+            }
+        }
+
+        async function testLinkedInMessage() {
+            const name = document.getElementById('li-test-name').value;
+            const title = document.getElementById('li-test-title').value;
+            const message = document.getElementById('li-test-message').value;
+            
+            if (!name || !title || !message) {
+                alert('Please fill all LinkedIn fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${APIs.linkedin}/simulate-message`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        senderName: name,
+                        senderTitle: title,
+                        senderCompany: 'Test Company',
+                        message: message
+                    })
+                });
+                
+                const result = await response.json();
+                alert(result.message);
+                refreshAllPending();
+                
+            } catch (error) {
+                alert('Error testing LinkedIn message: ' + error.message);
+            }
+        }
+
+        // Additional helper functions would continue here...
+    </script>
+</body>
+</html>

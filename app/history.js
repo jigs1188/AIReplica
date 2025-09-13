@@ -48,7 +48,7 @@ const HistoryScreen = () => {
       <View style={styles.cardHeader}>
         <View style={[styles.avatar, { backgroundColor: item.isUser ? "#6A0572" : "#AB47BC" }]}>
           <Ionicons 
-            name={item.isUser ? "person" : "robot"} 
+            name={item.isUser ? "person" : "hardware-chip"} 
             size={20} 
             color="#FFFFFF" 
           />

@@ -18,26 +18,47 @@ export class AutoReplyService {
   }
 
   async initialize() {
-    // Skip initialization on web platform
-    if (Platform.OS === 'web') {
-      console.log('Auto-Reply Service: Skipping initialization on web platform');
-      return;
-    }
     try {
-      // Load auto-reply settings
+      // Handle different platforms gracefully
+      if (Platform.OS === 'web') {
+        console.log('🌐 Auto-Reply Service: Web platform detected - using limited functionality');
+        this.isActive = false;
+        return { 
+          success: true, 
+          platform: 'web', 
+          message: 'Auto-reply service initialized for web (limited functionality)' 
+        };
+      }
+
+      // Load auto-reply settings for mobile platforms
       const settingsStr = await AsyncStorage.getItem('autoReplySettings');
       this.settings = settingsStr ? JSON.parse(settingsStr) : null;
       
       if (this.settings?.enabled) {
         this.isActive = true;
-        console.log('🤖 Auto-Reply Service: Activated');
+        console.log('🤖 Auto-Reply Service: Activated for', Platform.OS);
         await this.logActivity('Auto-reply service initialized and activated');
+        return { 
+          success: true, 
+          platform: Platform.OS, 
+          message: 'Auto-reply service fully activated' 
+        };
       } else {
-        console.log('🔕 Auto-Reply Service: Disabled');
+        console.log('🔕 Auto-Reply Service: Available but disabled');
+        return { 
+          success: true, 
+          platform: Platform.OS, 
+          message: 'Auto-reply service ready (currently disabled)' 
+        };
       }
       
     } catch (error) {
       console.error('Auto-Reply Service initialization failed:', error);
+      return { 
+        success: false, 
+        error: error.message,
+        platform: Platform.OS 
+      };
     }
   }
 

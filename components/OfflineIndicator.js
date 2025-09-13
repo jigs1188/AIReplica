@@ -6,12 +6,8 @@ const OfflineIndicator = () => {
   const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
-    const handleConnectionChange = (isConnected) => {
-      setIsOffline(!isConnected);
-    };
-
-    // For web
-    if (typeof window !== 'undefined') {
+    // For web - check if window and addEventListener exist
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
       const handleOnline = () => setIsOffline(false);
       const handleOffline = () => setIsOffline(true);
       
@@ -25,6 +21,11 @@ const OfflineIndicator = () => {
         window.removeEventListener('online', handleOnline);
         window.removeEventListener('offline', handleOffline);
       };
+    } else {
+      // React Native environment - use NetInfo or fallback
+      console.log('🔌 OfflineIndicator: Using React Native network monitoring');
+      // Set initial state as online for React Native
+      setIsOffline(false);
     }
   }, []);
 

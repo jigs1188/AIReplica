@@ -18,13 +18,22 @@ export default function RootLayout() {
       <Stack.Screen name="chat" />
       <Stack.Screen name="training" />
       <Stack.Screen name="subscription-plans" />
-      <Stack.Screen name="integration-dashboard" />
+      <Stack.Screen name="integration-hub" />
+      <Stack.Screen name="contact-manager" />
+      <Stack.Screen name="detailed-whatsapp-setup" />
       <Stack.Screen name="auto-reply" />
       <Stack.Screen name="MeetingMemory" />
       <Stack.Screen name="whatsapp-setup" />
       <Stack.Screen name="instagram-setup" />
       <Stack.Screen name="email-setup" />
       <Stack.Screen name="enhanced-whatsapp-setup" />
+      <Stack.Screen name="quick-start" />
+      <Stack.Screen name="platform-selector" />
+      <Stack.Screen name="whatsapp-regular-setup" />
+      <Stack.Screen name="qr-display" />
+      <Stack.Screen name="test-center" />
+      <Stack.Screen name="ai-personality" />
+      <Stack.Screen name="analytics" />
     </Stack>
   );
 }

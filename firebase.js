@@ -1,6 +1,8 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { initializeFirestore, persistentLocalCache, enableNetwork, disableNetwork } from "firebase/firestore";
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import { initializeFirestore, getFirestore, persistentLocalCache, enableNetwork, disableNetwork } from "firebase/firestore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -21,15 +23,28 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+
+// Initialize Auth with AsyncStorage persistence for React Native
+export const auth = Platform.OS === 'web' 
+  ? initializeAuth(app) 
+  : initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage)
+    });
 
 // Initialize Firestore with offline persistence and better error handling
-const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-  cache: persistentLocalCache({
-    cacheSizeBytes: 100 * 1024 * 1024, // 100MB cache
-  })
-});
+// Check if Firestore is already initialized to prevent re-initialization errors
+let db;
+try {
+  db = getFirestore(app);
+} catch (_error) {
+  // If getFirestore fails, initialize Firestore
+  db = initializeFirestore(app, {
+    experimentalForceLongPolling: true,
+    cache: persistentLocalCache({
+      cacheSizeBytes: 100 * 1024 * 1024, // 100MB cache
+    })
+  });
+}
 
 // Handle network state changes
 const handleNetworkChange = async () => {
@@ -44,10 +59,13 @@ const handleNetworkChange = async () => {
   }
 };
 
-// Listen for network changes (if available)
-if (typeof window !== 'undefined' && window.addEventListener) {
+// Listen for network changes (React Native safe)
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
   window.addEventListener('online', handleNetworkChange);
   window.addEventListener('offline', handleNetworkChange);
+} else {
+  // React Native environment - network monitoring handled elsewhere
+  console.log('📡 Firebase: React Native environment detected');
 }
 
 export { db };

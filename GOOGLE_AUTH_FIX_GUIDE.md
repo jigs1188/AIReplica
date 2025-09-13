@@ -1,33 +1,40 @@
-# 🔧 Google Authentication Fix Guide
+# 🔧 GOOGLE OAUTH ERROR - IMMEDIATE FIX
 
-## Current Issue
-Your Google authentication is returning "access is blocked" error. This typically happens due to OAuth configuration issues.
+## ❌ **THE EXACT ERROR:**
+```
+You can't sign in to this app because it doesn't comply with Google's OAuth 2.0 policy
+Redirect URI: exp://10.76.226.64:8081
+```
 
-## Quick Solutions
+## 🚨 **IMMEDIATE SOLUTION:**
 
-### Solution 1: Use Email Authentication (Recommended for now)
-The email authentication is working perfectly. Use email sign-in as your primary method while fixing Google auth.
-
-### Solution 2: Fix Google OAuth Configuration
-
-#### Step 1: Verify Google Cloud Console Setup
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Select your project: **airaplica**
-3. Navigate to **APIs & Services** > **Credentials**
-
-#### Step 2: Check OAuth 2.0 Client ID
-1. Find your OAuth 2.0 client ID: `32547708972-s6ac0qt3oebeg95tnjetintbkmcrp767.apps.googleusercontent.com`
-2. Click **Edit** on this client ID
-
-#### Step 3: Add Correct Package Name and SHA-1
-Your current package name in app.json is: `com.aireplica.app`
-
-**For Expo Development:**
-1. **Package name**: `com.aireplica.app`
-2. **SHA-1 certificate fingerprint** (for development):
+### **STEP 1: ADD REDIRECT URI TO GOOGLE CONSOLE**
+1. Go to: https://console.cloud.google.com/apis/credentials  
+2. Click your OAuth Client: `32547708972-s6ac0qt3oebeg95tnjetintbkmcrp767`
+3. **ADD THESE EXACT URIs:**
    ```
-   keytool -exportcert -keystore %USERPROFILE%\.android\debug.keystore -list -v -alias androiddebugkey
+   exp://10.76.226.64:8081
+   exp://127.0.0.1:19000
+   exp://localhost:19000  
+   https://auth.expo.io/@jigs1188/aireplica
    ```
+
+### **STEP 2: INSTALL PACKAGES & RESTART**
+```bash
+npm install expo-auth-session expo-crypto
+npx expo start --clear
+```
+
+## ⚡ **QUICK TEST - USE WEB BROWSER:**
+Google OAuth works perfectly on web! 
+```bash
+npx expo start --web
+```
+
+## 🎯 **ACTION NOW:**
+1. **Add redirect URIs to Google Console** ← **CRITICAL!**
+2. **Test on web browser first**  
+3. **Then test Android after URI setup**
    Password: `android`
 
 #### Step 4: Add Authorized Redirect URIs
