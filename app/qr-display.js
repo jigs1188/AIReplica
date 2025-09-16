@@ -99,16 +99,23 @@ export default function QRDisplayScreen() {
       if (result.connected) {
         setConnectionStatus('connected');
         Alert.alert(
-          'Connected Successfully! 🎉',
-          'WhatsApp Web is now connected to AIReplica. You can start receiving auto-replies!',
+          '🎉 WhatsApp Connected Successfully!',
+          'Your WhatsApp is now linked to AIReplica. You can start using automated replies.',
           [
-            { text: 'Test Now', onPress: () => router.push('/test-center') },
-            { text: 'Go to Dashboard', onPress: () => router.push('/dashboard') }
+            { 
+              text: 'Go to Dashboard', 
+              onPress: () => router.push('/dashboard') 
+            },
+            { 
+              text: 'Test Connection', 
+              onPress: () => router.push('/whatsapp-live-test') 
+            }
           ]
         );
       }
     } catch (error) {
-      // Silent fail - connection check will continue
+      // Connection check failed, continue waiting
+      console.log('Connection check failed:', error.message);
     }
   };
 

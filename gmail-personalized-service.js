@@ -8,6 +8,10 @@ const cors = require('cors');
 const { generatePersonalizedReply, personalizedContacts } = require('./personalized-ai-service');
 require('dotenv').config();
 
+// OAuth imports for quick connect
+const { google } = require('googleapis');
+const OAuth2 = google.auth.OAuth2;
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -32,6 +36,16 @@ const gmailSettings = {
         social: { enabled: true, autoReply: true }
     }
 };
+
+// OAuth Configuration for Quick Connect
+const oauth2Client = new OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
+);
+
+// Gmail API setup
+const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
 console.log('📧 Starting Gmail Personalized Service...');
 
@@ -219,10 +233,107 @@ Please compose a professional email response that addresses the sender's message
 
 // API Endpoints
 
+// OAuth Endpoints for Quick Connect
+app.get('/api/gmail/auth', (req, res) => {
+    const scopes = [
+        'https://www.googleapis.com/auth/gmail.readonly',
+        'https://www.googleapis.com/auth/gmail.send',
+        'https://www.googleapis.com/auth/gmail.modify'
+    ];
+    
+    const authUrl = oauth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: scopes,
+        state: 'gmail_quick_connect'
+    });
+    
+    res.json({
+        success: true,
+        authUrl: authUrl,
+        message: 'Click the URL to authorize Gmail access'
+    });
+});
+
+app.get('/api/gmail/callback', async (req, res) => {
+    const { code } = req.query;
+    
+    if (!code) {
+        return res.status(400).json({
+            success: false,
+            error: 'Authorization code is required'
+        });
+    }
+    
+    try {
+        const { tokens } = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(tokens);
+        
+        // Store tokens securely (in production, use database)
+        gmailSettings.accessToken = tokens.access_token;
+        gmailSettings.refreshToken = tokens.refresh_token;
+        gmailSettings.connected = true;
+        
+        res.json({
+            success: true,
+            message: 'Gmail connected successfully!',
+            platform: 'Gmail',
+            status: 'connected'
+        });
+    } catch (error) {
+        console.error('❌ Gmail OAuth Error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to connect Gmail'
+        });
+    }
+});
+
+app.post('/api/gmail/quick-connect', async (req, res) => {
+    try {
+        const { consumerEmail } = req.body;
+        
+        // Use stored credentials from .env for quick connect
+        if (process.env.GMAIL_REFRESH_TOKEN) {
+            oauth2Client.setCredentials({
+                refresh_token: process.env.GMAIL_REFRESH_TOKEN
+            });
+            
+            gmailSettings.connected = true;
+            
+            // Store consumer info if provided
+            if (consumerEmail) {
+                gmailSettings.consumerEmail = consumerEmail;
+                console.log(`📧 Consumer ${consumerEmail} connected to Gmail via backend credentials`);
+            }
+            
+            res.json({
+                success: true,
+                message: 'Gmail connected using stored credentials',
+                platform: 'Gmail',
+                status: 'connected',
+                consumerEmail: consumerEmail || null
+            });
+        } else {
+            res.json({
+                success: false,
+                error: 'No stored credentials found. Please use manual setup.',
+                requiresManualSetup: true
+            });
+        }
+    } catch (error) {
+        console.error('❌ Gmail Quick Connect Error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to connect Gmail'
+        });
+    }
+});
+
 app.get('/api/gmail/status', (req, res) => {
     res.json({
         success: true,
         platform: 'Gmail',
+        connected: gmailSettings.connected || false,
         settings: gmailSettings,
         pendingEmails: gmailSettings.pendingEmails.size,
         personalizedContacts: personalizedContacts.size
@@ -332,7 +443,7 @@ app.post('/api/gmail/set-out-of-office', (req, res) => {
     });
 });
 
-const PORT = 3008;
+const PORT = 3003;
 
 app.listen(PORT, () => {
     console.log(`📧 Gmail Personalized Service running on port ${PORT}`);

@@ -448,6 +448,49 @@ app.get('/api/contacts/export', (req, res) => {
     });
 });
 
+// Add message to contact's chat history
+app.post('/api/contacts/:number/add-message', async (req, res) => {
+    const { number } = req.params;
+    const { content, sender, timestamp, senderName } = req.body;
+    
+    if (!content || !sender) {
+        return res.status(400).json({ success: false, error: 'Content and sender are required' });
+    }
+    
+    let contact = personalizedContacts.get(number);
+    
+    if (!contact) {
+        // Create new contact profile
+        contact = new ContactProfile(number, senderName || 'Unknown Contact');
+        personalizedContacts.set(number, contact);
+    }
+    
+    // Add message to history
+    contact.chatHistory.push({
+        content,
+        sender, // 'them' or 'us'
+        timestamp: timestamp || new Date().toISOString(),
+        platform: 'whatsapp'
+    });
+    
+    // Update interaction stats
+    contact.lastInteraction = new Date();
+    contact.interactionCount++;
+    
+    // Keep only last 100 messages to prevent memory issues
+    if (contact.chatHistory.length > 100) {
+        contact.chatHistory = contact.chatHistory.slice(-100);
+    }
+    
+    await saveContactProfiles();
+    
+    res.json({ 
+        success: true, 
+        message: 'Message added to history',
+        historyLength: contact.chatHistory.length
+    });
+});
+
 // Health check
 app.get('/api/status', (req, res) => {
     res.json({

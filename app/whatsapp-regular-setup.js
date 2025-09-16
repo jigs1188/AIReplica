@@ -7,7 +7,8 @@ import {
   TextInput,
   Alert,
   StatusBar,
-  Linking
+  Linking,
+  Platform
 } from 'react-native';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -44,39 +45,141 @@ const WhatsAppRegularSetupScreen = () => {
   ];
 
   const handleWhatsAppCheck = async () => {
-    try {
-      // Try to open WhatsApp
-      const whatsappUrl = 'whatsapp://';
-      const supported = await Linking.canOpenURL(whatsappUrl);
-      
-      if (supported) {
-        setIsWhatsAppInstalled(true);
-        setCurrentStep(2);
-        Alert.alert(
-          'WhatsApp Found! ✅',
-          'Great! WhatsApp is installed on your device. Let\'s continue with setup.',
-          [{ text: 'Continue', style: 'default' }]
-        );
-      } else {
-        Alert.alert(
-          'WhatsApp Not Found',
-          'Please install WhatsApp from the App Store or Google Play before continuing.',
-          [
-            { text: 'Install WhatsApp', onPress: () => Linking.openURL('https://whatsapp.com/download') },
-            { text: 'I\'ll install later', style: 'cancel' }
-          ]
-        );
-      }
-    } catch (error) {
+    // Check if running on web vs mobile
+    if (Platform.OS === 'web') {
       Alert.alert(
-        'Check Manually',
-        'Please make sure WhatsApp is installed on your device, then tap Continue.',
+        '🌐 Web Browser Detected',
+        'You\'re running this in a web browser. For full WhatsApp integration, please:\n\n1. Use the mobile app (scan QR with Expo Go)\n2. Or continue setup anyway to configure backend services',
         [
-          { text: 'Continue Anyway', onPress: () => { setIsWhatsAppInstalled(true); setCurrentStep(2); } },
-          { text: 'Cancel', style: 'cancel' }
+          {
+            text: 'Continue Setup Anyway',
+            onPress: () => {
+              setIsWhatsAppInstalled(true);
+              setCurrentStep(2);
+            }
+          },
+          {
+            text: 'How to Get Mobile App',
+            onPress: () => {
+              Alert.alert(
+                '📱 Mobile App Setup',
+                '1. Install "Expo Go" on your phone\n2. Run "expo start" in terminal\n3. Scan QR code with Expo Go\n4. Use mobile app for full features',
+                [{ text: 'OK' }]
+              );
+            }
+          }
         ]
       );
+      return;
     }
+
+    // Mobile device - improved WhatsApp detection
+    Alert.alert(
+      '📱 WhatsApp Check',
+      'Do you have WhatsApp installed on this device?',
+      [
+        {
+          text: 'Yes, I have WhatsApp',
+          onPress: () => {
+            setIsWhatsAppInstalled(true);
+            setCurrentStep(2);
+            Alert.alert(
+              'Perfect! ✅',
+              'Great! Let\'s continue with connecting your WhatsApp to AIReplica.',
+              [{ text: 'Continue', style: 'default' }]
+            );
+          }
+        },
+        {
+          text: 'No, I need to install it',
+          onPress: () => {
+            Alert.alert(
+              'Install WhatsApp',
+              'Please install WhatsApp first, then come back to complete the setup.',
+              [
+                { 
+                  text: 'Install WhatsApp', 
+                  onPress: () => Linking.openURL('https://whatsapp.com/download') 
+                },
+                { 
+                  text: 'I\'ll install later', 
+                  style: 'cancel' 
+                }
+              ]
+            );
+          }
+        },
+        {
+          text: 'Let me check',
+          onPress: async () => {
+            try {
+              // Multiple URL schemes to test
+              const whatsappUrls = [
+                'whatsapp://',
+                'whatsapp://send',
+                'com.whatsapp://'
+              ];
+              
+              let detected = false;
+              for (const url of whatsappUrls) {
+                try {
+                  const supported = await Linking.canOpenURL(url);
+                  if (supported) {
+                    detected = true;
+                    break;
+                  }
+                } catch (_) {
+                  // Continue to next URL
+                }
+              }
+              
+              if (detected) {
+                setIsWhatsAppInstalled(true);
+                setCurrentStep(2);
+                Alert.alert(
+                  'WhatsApp Found! ✅',
+                  'Great! WhatsApp is detected on your device.',
+                  [{ text: 'Continue', style: 'default' }]
+                );
+              } else {
+                Alert.alert(
+                  'WhatsApp Detection',
+                  'Unable to auto-detect WhatsApp. If you have WhatsApp installed, tap "I have WhatsApp" to continue.',
+                  [
+                    { 
+                      text: 'I have WhatsApp', 
+                      onPress: () => { 
+                        setIsWhatsAppInstalled(true); 
+                        setCurrentStep(2); 
+                      } 
+                    },
+                    { 
+                      text: 'Install WhatsApp', 
+                      onPress: () => Linking.openURL('https://whatsapp.com/download') 
+                    }
+                  ]
+                );
+              }
+            } catch (_error) {
+              Alert.alert(
+                'Manual Confirmation',
+                'Please confirm: Do you have WhatsApp installed?',
+                [
+                  { 
+                    text: 'Yes, Continue', 
+                    onPress: () => { 
+                      setIsWhatsAppInstalled(true); 
+                      setCurrentStep(2); 
+                    } 
+                  },
+                  { text: 'No, I need to install', style: 'cancel' }
+                ]
+              );
+            }
+          }
+        }
+      ]
+    );
   };
 
   const validatePhoneNumber = (number) => {

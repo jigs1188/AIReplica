@@ -44,11 +44,11 @@ const PlatformSelectorScreen = () => {
       icon: 'instagram',
       color: '#E4405F',
       description: 'Direct messages and comments',
-      badge: 'COMING SOON',
-      badgeColor: '#6B7280',
+      badge: 'AVAILABLE',
+      badgeColor: '#10B981',
       features: ['DM auto-replies', 'Comment responses', 'Story replies', 'Requires Instagram Business'],
       route: '/instagram-setup',
-      disabled: true
+      disabled: false
     },
     {
       id: 'email',
@@ -56,11 +56,11 @@ const PlatformSelectorScreen = () => {
       icon: 'mail',
       color: '#3B82F6',
       description: 'Gmail, Outlook, and more',
-      badge: 'BETA',
-      badgeColor: '#F59E0B',
+      badge: 'AVAILABLE',
+      badgeColor: '#10B981',
       features: ['Smart replies', 'Email templates', 'Auto-categorization', 'Multiple accounts'],
       route: '/email-setup',
-      disabled: true
+      disabled: false
     },
     {
       id: 'linkedin',
@@ -68,11 +68,11 @@ const PlatformSelectorScreen = () => {
       icon: 'linkedin',
       color: '#0077B5',
       description: 'Professional networking messages',
-      badge: 'PRO FEATURE',
-      badgeColor: '#EC4899',
+      badge: 'AVAILABLE',
+      badgeColor: '#10B981',
       features: ['Connection requests', 'InMail responses', 'Professional tone', 'Lead generation'],
       route: '/linkedin-setup',
-      disabled: true
+      disabled: false
     }
   ];
 

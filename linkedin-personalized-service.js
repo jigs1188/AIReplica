@@ -8,6 +8,9 @@ const cors = require('cors');
 const { generatePersonalizedReply, personalizedContacts } = require('./personalized-ai-service');
 require('dotenv').config();
 
+// OAuth imports for quick connect
+const axios = require('axios');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -268,10 +271,113 @@ Please compose a professional LinkedIn response that:
 
 // API Endpoints
 
+// OAuth Endpoints for Quick Connect
+app.get('/api/linkedin/auth', (req, res) => {
+    const clientId = process.env.LINKEDIN_CLIENT_ID;
+    const redirectUri = process.env.LINKEDIN_REDIRECT_URI;
+    
+    const authUrl = `https://www.linkedin.com/oauth/v2/authorization?` +
+        `response_type=code&` +
+        `client_id=${clientId}&` +
+        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+        `scope=r_liteprofile%20r_emailaddress%20w_member_social&` +
+        `state=linkedin_quick_connect`;
+    
+    res.json({
+        success: true,
+        authUrl: authUrl,
+        message: 'Click the URL to authorize LinkedIn access'
+    });
+});
+
+app.get('/api/linkedin/callback', async (req, res) => {
+    const { code } = req.query;
+    
+    if (!code) {
+        return res.status(400).json({
+            success: false,
+            error: 'Authorization code is required'
+        });
+    }
+    
+    try {
+        // Exchange code for access token
+        const tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', {
+            grant_type: 'authorization_code',
+            code: code,
+            client_id: process.env.LINKEDIN_CLIENT_ID,
+            client_secret: process.env.LINKEDIN_CLIENT_SECRET,
+            redirect_uri: process.env.LINKEDIN_REDIRECT_URI
+        }, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+        
+        const { access_token } = tokenResponse.data;
+        
+        // Store token securely (in production, use database)
+        linkedinSettings.accessToken = access_token;
+        linkedinSettings.connected = true;
+        
+        res.json({
+            success: true,
+            message: 'LinkedIn connected successfully!',
+            platform: 'LinkedIn',
+            status: 'connected'
+        });
+    } catch (error) {
+        console.error('❌ LinkedIn OAuth Error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to connect LinkedIn'
+        });
+    }
+});
+
+app.post('/api/linkedin/quick-connect', async (req, res) => {
+    try {
+        const { consumerEmail } = req.body;
+        
+        // Use stored credentials from .env for quick connect
+        if (process.env.LINKEDIN_ACCESS_TOKEN) {
+            linkedinSettings.accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
+            linkedinSettings.connected = true;
+            
+            // Store consumer info if provided
+            if (consumerEmail) {
+                linkedinSettings.consumerEmail = consumerEmail;
+                console.log(`💼 Consumer ${consumerEmail} connected to LinkedIn via backend credentials`);
+            }
+            
+            res.json({
+                success: true,
+                message: 'LinkedIn connected using stored credentials',
+                platform: 'LinkedIn',
+                status: 'connected',
+                consumerEmail: consumerEmail || null
+            });
+        } else {
+            res.json({
+                success: false,
+                error: 'No stored credentials found. Please use manual setup.',
+                requiresManualSetup: true
+            });
+        }
+    } catch (error) {
+        console.error('❌ LinkedIn Quick Connect Error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to connect LinkedIn'
+        });
+    }
+});
+
 app.get('/api/linkedin/status', (req, res) => {
     res.json({
         success: true,
         platform: 'LinkedIn',
+        connected: linkedinSettings.connected || false,
         settings: linkedinSettings,
         pendingMessages: linkedinSettings.pendingMessages.size,
         pendingConnections: linkedinSettings.pendingConnections.size,
@@ -414,7 +520,7 @@ app.post('/api/linkedin/update-profile', (req, res) => {
     });
 });
 
-const PORT = 3009;
+const PORT = 3007;
 
 app.listen(PORT, () => {
     console.log(`💼 LinkedIn Personalized Service running on port ${PORT}`);

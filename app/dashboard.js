@@ -21,7 +21,7 @@ import { createShadow, shadowPresets } from "../utils/shadowUtils";
 // Complete AIReplica Feature Suite - REDESIGNED FOR BETTER UX
 const features = [
   { 
-    title: "� Quick Start", 
+    title: "🚀 Quick Start", 
     subtitle: "Connect your first platform and start auto-replies in 2 minutes", 
     icon: "rocket-launch", 
     route: "/quick-start",
@@ -30,7 +30,7 @@ const features = [
     priority: 1 
   },
   { 
-    title: "� History & Conversations", 
+    title: "📋 History & Conversations", 
     subtitle: "View all AI conversations and auto-reply history across platforms", 
     icon: "history", 
     route: "/history",
@@ -87,13 +87,14 @@ const features = [
     color: "#F59E0B" 
   },
   { 
-    title: "� Integration Hub", 
+    title: "🔗 Integration Hub", 
     subtitle: "Connect your platforms for real auto-replies", 
     icon: "link-variant", 
     route: "/integration-hub",
     badge: "CONNECT",
     color: "#FF6B35" 
   },
+ 
   { 
     title: "📅 Meeting Memory", 
     subtitle: "AI-powered meeting insights and follow-ups", 
@@ -313,7 +314,7 @@ export default function DashboardScreen() {
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity 
             style={{ padding: 8, marginRight: 4 }} 
-            onPress={() => router.push("/integration-hub")}
+            onPress={() => router.push("/enhanced-integration-hub")}
           >
             <Ionicons name="add-circle-outline" size={24} color="#fff" />
           </TouchableOpacity>
@@ -371,7 +372,7 @@ export default function DashboardScreen() {
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -4 }}>
             <TouchableOpacity
-              onPress={() => router.push("/integration-hub")}
+              onPress={() => router.push("/enhanced-integration-hub")}
               style={{
                 backgroundColor: "#6366F1",
                 paddingHorizontal: 16,

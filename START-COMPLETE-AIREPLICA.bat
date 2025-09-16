@@ -18,17 +18,22 @@ echo.
 echo 🔧 Starting All Services:
 echo.
 
-echo [1/3] Starting AI Reply Engine...
+echo [1/4] Starting AI Reply Engine...
 start "AI Reply Engine" cmd /k "cd /d C:\Users\LENOVO\Desktop\startup\aireplica && echo 🤖 AI Reply Engine Starting... && node ai-reply-engine.js"
 
 timeout /t 3 /nobreak >nul
 
-echo [2/3] Starting Working WhatsApp Service (with QR Code Generation)...
+echo [2/4] Starting Working WhatsApp Service (with QR Code Generation)...
 start "WhatsApp Service" cmd /k "cd /d C:\Users\LENOVO\Desktop\startup\aireplica && echo 📱 WhatsApp Service Starting... && node whatsapp-web-service.js"
 
-timeout /t 5 /nobreak >nul
+timeout /t 3 /nobreak >nul
 
-echo [3/3] Starting Mobile App (with QR Code for phone)...
+echo [3/4] Starting Personalized AI Service (Contact Management)...
+start "Personalized AI" cmd /k "cd /d C:\Users\LENOVO\Desktop\startup\aireplica && echo 🎯 Personalized AI Starting... && node personalized-ai-service.js"
+
+timeout /t 3 /nobreak >nul
+
+echo [4/4] Starting Mobile App (with QR Code for phone)...
 start "AIReplica Mobile App" cmd /k "cd /d C:\Users\LENOVO\Desktop\startup\aireplica && echo 📱 Mobile App Starting... && echo Installing dependencies... && npm install && echo Starting Expo with QR code... && npx expo start --clear"
 
 echo.
@@ -39,6 +44,7 @@ echo 📱 MOBILE APP ACCESS:
 echo ├── Expo Metro: Will show QR code
 echo ├── Scan QR: With Expo Go app on your phone
 echo ├── WhatsApp Service: http://localhost:3004
+echo ├── Personalized AI: http://localhost:3005
 echo ├── AI Engine: http://localhost:3002
 echo └── Mobile Dashboard: Accessible via Expo QR scan
 echo.

@@ -6,6 +6,40 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+                  backgroundColor: 'rgba(255,255,255,0.9)',
+                  paddingVertical: 12,
+                  paddingHorizontal: 16,
+                  borderRadius: 12,
+                  marginRight: 8,
+                  alignItems: 'center'
+                }}
+                onPress={() => router.push('/simple-user-setup')}
+              >
+                <MaterialCommunityIcons name="flash" size={20} color="#6A0572" />
+                <Text style={{ color: '#6A0572', fontWeight: '600', marginTop: 4, fontSize: 12 }}>
+                  Quick Connect
+                </Text>
+                <Text style={{ color: '#6A0572', fontSize: 10, textAlign: 'center', marginTop: 2 }}>
+                  Unified consumer flow for all platforms
+                </Text>
+              </TouchableOpacity>
+                  backgroundColor: 'rgba(255,255,255,0.9)',
+                  paddingVertical: 12,
+                  paddingHorizontal: 16,
+                  borderRadius: 12,
+                  marginRight: 8,
+                  alignItems: 'center'
+                }}
+                onPress={() => router.push('/simple-user-setup')}
+              >
+                <MaterialCommunityIcons name="flash" size={20} color="#6A0572" />
+                <Text style={{ color: '#6A0572', fontWeight: '600', marginTop: 4, fontSize: 12 }}>
+                  Quick Connect
+                </Text>
+                <Text style={{ color: '#6A0572', fontSize: 10, textAlign: 'center', marginTop: 2 }}>
+                  Unified consumer flow for all platforms
+                </Text>
+              </TouchableOpacity>
   ActivityIndicator,
   Modal,
   TextInput
@@ -288,6 +322,28 @@ export default function IntegrationHub() {
             </>
           ) : (
             <TouchableOpacity
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    borderRadius: 12,
+                    marginLeft: 8,
+                    alignItems: 'center',
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.4)'
+                  }}
+                  onPress={() => router.push('/platform-selector')}
+                >
+                  <MaterialCommunityIcons name="cog-outline" size={20} color="#fff" />
+                  <Text style={{ color: '#fff', fontWeight: '600', marginTop: 4, fontSize: 12 }}>
+                    Detailed Setup
+                  </Text>
+                  <Text style={{ color: '#fff', fontSize: 10, textAlign: 'center', marginTop: 2 }}>
+                    API keys & advanced config for developers
+                  </Text>
+                </TouchableOpacity>
               style={styles.connectButton}
               onPress={() => {
                 if (platform.setupType === 'regular_whatsapp') {
@@ -299,7 +355,7 @@ export default function IntegrationHub() {
                 } else if (platform.id === 'gmail') {
                   router.push('/email-setup');
                 } else if (platform.id === 'linkedin') {
-                  router.push('/real-one-click-platform-setup?platform=linkedin');
+                  router.push('/linkedin-setup');
                 } else {
                   connectOAuthPlatform(platform.id);
                 }

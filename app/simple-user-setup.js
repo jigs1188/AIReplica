@@ -46,11 +46,20 @@ export default function SimpleUserSetup() {
       features: ['Unlimited messaging', 'Rich media', 'Analytics', 'Templates']
     },
     {
+        id: 'quick_connect',
+        name: 'Quick Connect',
+        icon: 'flash',
+        color: '#6A0572',
+        description: 'Unified consumer flow for all platforms',
+        setupType: 'quick_connect',
+        features: ['Username/Password', 'Auto-replies', 'Unified UI']
+      },
+      {
       id: 'whatsapp_regular',
       name: 'WhatsApp Personal',
       icon: 'message-circle',
       color: '#128C7E',
-      description: 'Personal auto-replies via WhatsApp Web',
+      description: 'Personal auto-replies via WhatsApp Web (QR Scan)',
       setupType: 'qr_scan',
       whatsappType: 'regular',
       features: ['Personal messages', 'QR setup', 'WhatsApp Web', 'Free to use']
@@ -60,25 +69,161 @@ export default function SimpleUserSetup() {
       name: 'Instagram',
       icon: 'instagram',
       color: '#E4405F',
-      description: 'Auto-reply to Instagram DMs',
-      setupType: 'social_login'
+      description: 'Auto-reply to Instagram DMs (Login + OTP)',
+      setupType: 'social_login',
+      authFlow: 'login_otp',
+      features: ['DM auto-replies', 'Story mentions', 'Comment responses', 'Login + SMS verification']
     },
     {
       id: 'email',
       name: 'Gmail',
       icon: 'gmail',
       color: '#DB4437',
-      description: 'Smart email auto-responses',
-      setupType: 'google_login'
+      description: 'Smart email auto-responses (Login + 2FA)',
+      setupType: 'social_login',
+      authFlow: 'login_2fa',
+      features: ['Email auto-replies', 'Thread management', 'Login + 2FA', 'App Password support']
+    },
+    {
+      id: 'linkedin',
+      name: 'LinkedIn',
+      icon: 'linkedin',
+      color: '#0077B5',
+      description: 'Professional message automation (Login + Phone)',
+      setupType: 'social_login',
+      authFlow: 'login_phone',
+      features: ['Professional replies', 'Connection requests', 'Login + Phone verification', 'Network management']
     }
   ];
 
-  const handlePlatformSelect = (platform) => {
-    setSelectedPlatform(platform);
-    if (platform.whatsappType) {
-      setWhatsappType(platform.whatsappType);
+  const handlePlatformSelect = async (platform) => {
+      return;
     }
-    setCurrentStep(2);
+    
+    if (platform.id === 'quick_connect') {
+      Alert.alert(
+        'Quick Connect',
+        'This will guide you through a unified consumer flow for all platforms.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Start', onPress: () => router.push('/consumer-platforms') }
+        ]
+      );
+    setSelectedPlatform(platform);
+    
+    // For WhatsApp, preserve the working QR/OTP flows
+    if (platform.id.includes('whatsapp')) {
+      if (platform.whatsappType) {
+        setWhatsappType(platform.whatsappType);
+      }
+      
+      if (platform.setupType === 'qr_scan') {
+        // Direct to QR scanning for WhatsApp Web (already working!)
+        Alert.alert(
+          '📱 WhatsApp Web Setup',
+          'You will scan a QR code with your WhatsApp app to connect. This is the same QR system you mentioned that was working!',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Start QR Setup', 
+              onPress: () => {
+                // Route to universal QR system (preserves your working QR flow)
+                router.push(`/universal-qr-auth?platform=whatsapp&type=${platform.whatsappType}`);
+              }
+            }
+          ]
+        );
+      } else {
+        // Phone OTP for WhatsApp Business
+        setCurrentStep(2);
+      }
+      return;
+    }
+    
+    // For other platforms, use simple login + verification flows
+    await handleSimpleAuth(platform);
+  };
+
+  const handleSimpleAuth = async (platform) => {
+    // For non-WhatsApp platforms, use simple authentication flows that ACTIVATE AUTO-REPLIES
+    switch(platform.authFlow) {
+      case 'login_otp':
+        // Instagram: Username/Password + SMS OTP + Auto-Reply Activation
+        Alert.alert(
+          `🤖 Connect ${platform.name} Auto-Replies`,
+          'Setup auto-replies for Instagram DMs. You will login and configure AI responses.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Start Auto-Reply Setup', 
+              onPress: () => router.push('/consumer-instagram-setup')
+            }
+          ]
+        );
+        break;
+      
+      case 'login_2fa':
+        // Gmail: Email/Password + 2FA + Auto-Reply Activation
+        Alert.alert(
+          `📧 Connect ${platform.name} Auto-Replies`,
+          'Setup smart email auto-responses. You will login and configure AI email assistant.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Start Email Auto-Reply Setup', 
+              onPress: () => router.push('/consumer-gmail-setup')
+            }
+          ]
+        );
+        break;
+      
+      case 'login_phone':
+        // LinkedIn: Email/Password + Phone verification + Auto-Reply Activation
+        Alert.alert(
+          `💼 Connect ${platform.name} Auto-Replies`,
+          'Setup professional message automation. You will login and configure AI assistant.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Start Professional Auto-Reply Setup', 
+              onPress: () => router.push('/consumer-linkedin-setup')
+            }
+          ]
+        );
+        break;
+      
+      default:
+        // Fallback to consumer components with auto-reply focus
+        Alert.alert(
+          `🤖 ${platform.name} Auto-Replies`,
+          'Configure AI auto-replies for this platform.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Setup Auto-Replies', onPress: () => router.push(`/consumer-${platform.id}-setup`) }
+          ]
+        );
+    }
+  };
+
+  const saveConnectionStatus = async (platformId) => {
+    try {
+      const stored = await AsyncStorage.getItem('@connected_platforms');
+      const current = stored ? JSON.parse(stored) : {};
+      
+      const updated = {
+        ...current,
+        [platformId]: {
+          connected: true,
+          connectedAt: new Date().toISOString(),
+          autoReplyEnabled: true,
+          method: 'quick_connect'
+        }
+      };
+      
+      await AsyncStorage.setItem('@connected_platforms', JSON.stringify(updated));
+    } catch (error) {
+      console.error('Error saving connection status:', error);
+    }
   };
 
   const sendOTP = async () => {
@@ -96,6 +241,7 @@ export default function SimpleUserSetup() {
         platform: platformId,
         userType: 'simple'
       };
+        // Additional logic for Quick Connect can be added here
 
       // Add WhatsApp type if it's a WhatsApp platform
       if (selectedPlatform.whatsappType) {
@@ -196,14 +342,14 @@ export default function SimpleUserSetup() {
 
         setCurrentStep(4);
         
-        // Show success message with specific features
+        // Show success message with specific auto-reply features
         const successMessage = result.nextSteps ? 
           result.nextSteps.join('\n• ') : 
-          `Your ${selectedPlatform.name} is now connected! AI will automatically reply to your messages.`;
+          `Your ${selectedPlatform.name} is now connected with AI auto-replies active!`;
         
         Alert.alert(
-          '🎉 Connected Successfully!',
-          `${result.message}\n\n• ${successMessage}`
+          '🎉 Auto-Replies Activated!',
+          `${result.message}\n\n🤖 AI Auto-Reply Features Active:\n• ${successMessage}\n\n✅ Start receiving messages and watch AI respond automatically!`
         );
       } else {
         throw new Error(result.error || 'Invalid verification code');

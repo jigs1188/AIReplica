@@ -32,8 +32,11 @@ export default function RootLayout() {
       <Stack.Screen name="whatsapp-regular-setup" />
       <Stack.Screen name="qr-display" />
       <Stack.Screen name="test-center" />
+      <Stack.Screen name="test-ai-reply" />
       <Stack.Screen name="ai-personality" />
-      <Stack.Screen name="analytics" />
+      <Stack.Screen name="improved-whatsapp-setup" />
+      <Stack.Screen name="advanced-setup-hub" />
+      <Stack.Screen name="linkedin-setup" />
     </Stack>
   );
 }
